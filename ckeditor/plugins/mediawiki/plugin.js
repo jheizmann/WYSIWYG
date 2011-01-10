@@ -745,7 +745,8 @@ CKEDITOR.customprocessor.prototype =
                                             this._IsInsideCell = false ;
 
                                             stringBuilder.push( '\n' ) ;
-                                            cell = cell.nextElementSibling;
+//                                            cell = cell.nextElementSibling;
+                                            cell = cell.nextSibling;
                                         }
                                     }
                                     // not a <tr> found, then we only accept templates and special functions
