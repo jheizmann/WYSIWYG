@@ -2,6 +2,7 @@
 <deploydescriptor>
 	<global>
 		<version>140</version>
+		<patchlevel>1</patchlevel>
 		<id>wysiwyg</id>
 		<vendor>Ontoprise GmbH</vendor>
 		<maintainer>Ontoprise GmbH</maintainer>
