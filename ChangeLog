@@ -1,6 +1,18 @@
 WYSIWYG extension ChangeLog
 ===========================
 
+VERSION 1.4.0_3
+
+
+  FEATURES:
+
+  CHANGES:
+
+  BUGFIXES:
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=13511
+      Query Interface (and other tools) do not open from Wysiwyg in IE8
+
+
 
 VERSION 1.4.0_2
 
