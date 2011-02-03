@@ -247,7 +247,7 @@ CKEDITOR.plugins.add( 'mediawiki',
 				});
 
 		}
-       
+
         // context menu
         if (editor.contextMenu) {
             editor.contextMenu.addListener(function(element, selection) {
@@ -285,7 +285,7 @@ CKEDITOR.plugins.add( 'mediawiki',
                             'FCK__MWOnlyinclude'
                         ])
                     )
-                        evt.data.dialog = 'MWSpecialTags';		
+                        evt.data.dialog = 'MWSpecialTags';
                 }
             }
        )
@@ -348,7 +348,7 @@ CKEDITOR.customprocessor.prototype =
 
         fragment.writeHtml( writer, this.dataFilter );
 	    data = writer.getHtml( true );
-       
+
 	    return data;
    },
 
@@ -370,7 +370,7 @@ CKEDITOR.customprocessor.prototype =
             window.parent.wgCKeditorCurrentMode = 'source';
         else if (window.parent.popup && window.parent.popup.parent.wgCKeditorCurrentMode)
             window.parent.popup.parent.wgCKeditorCurrentMode = 'source';
-        
+
 		if (CKEDITOR.env.ie) {
 			data = this.ieFixHTML(data);
 		}
@@ -386,11 +386,11 @@ CKEDITOR.customprocessor.prototype =
         data = data.replace(/<br\/>(\s*<\/(p|li)>)/gi, '$1');
         // also remove <br/> before nested lists
         data = data.replace(/<br\/>(\s*<(ol|ul)>)/gi, '$1');
-		// in IE the values of the class attribute is not quoted 
+		// in IE the values of the class attribute is not quoted
         data = data.replace(/class=([^\"].*?)\s/gi, 'class="$1" ');
         // when inserting data with Excel an unmatched <col> element exists, thus remove it
         data = data.replace(/<col[^>]*>/gi, '' );
-		
+
 
         var rootNode = this._getNodeFromHtml( data );
 		// rootNode is <body>.
@@ -605,7 +605,7 @@ CKEDITOR.customprocessor.prototype =
 						case 'a' :
                             // if there is no inner HTML in the Link, do not add it to the wikitext
                             if (! this._GetNodeText(htmlNode).Trim() ) break;
-                            
+
 							var pipeline = true;
 							// Get the actual Link href.
 							var href = htmlNode.getAttribute( '_cke_saved_href' );
@@ -651,7 +651,8 @@ CKEDITOR.customprocessor.prototype =
 							}
                             if ( isWikiUrl ) href = href.urldecode();
 							stringBuilder.push( href );
-							if ( pipeline && htmlNode.innerHTML != '[n]' && ( !isWikiUrl || href != htmlNode.innerHTML || !href.toLowerCase().StartsWith( "category:" ) ) ){
+                            var innerHTML = this._GetNodeText(htmlNode)
+							if ( pipeline && innerHTML != '[n]' && ( !isWikiUrl || href != innerHTML || !href.toLowerCase().StartsWith( "category:" ) ) ){
 								stringBuilder.push( isWikiUrl? '|' : ' ' );
 								this._AppendChildNodes( htmlNode, stringBuilder, prefix );
 							}
@@ -701,7 +702,7 @@ CKEDITOR.customprocessor.prototype =
 								stringBuilder.push( attribs );
 							stringBuilder.push( '\n' );
 
-							if ( htmlNode.caption && htmlNode.caption.innerHTML.length > 0 ){
+							if ( htmlNode.caption && this._GetNodeText(htmlNode.caption).length > 0 ){
 								stringBuilder.push( '|+ ' );
 								this._AppendChildNodes( htmlNode.caption, stringBuilder, prefix );
 								stringBuilder.push( '\n' );
@@ -728,7 +729,8 @@ CKEDITOR.customprocessor.prototype =
                                             stringBuilder.push( attribs ) ;
                                         stringBuilder.push( '\n' ) ;
 
-                                        var cell = currentNode.firstElementChild;
+//                                        var cell = currentNode.firstElementChild;
+                                        var cell = currentNode.firstChild;
                                         while ( cell ) {
                                             attribs = this._GetAttributesStr( cell ) ;
 
@@ -873,7 +875,7 @@ CKEDITOR.customprocessor.prototype =
 									if ( refName && refName.length > 0 )
 										stringBuilder.push( ' name="' + refName + '"' );
 
-									if ( htmlNode.innerHTML.length == 0 )
+									if ( this._GetNodeText(htmlNode).length == 0 )
 										stringBuilder.push( ' />' );
 									else {
 										stringBuilder.push( '>' );
@@ -995,7 +997,7 @@ CKEDITOR.customprocessor.prototype =
 
 								if ( attribs.length > 0 )
 									stringBuilder.push( attribs );
-								if( htmlNode.innerHTML == '' )
+								if( this._GetNodeText(htmlNode) == '' )
 									stringBuilder.push( ' />' );
 								else {
 									stringBuilder.push( '>' );
@@ -1279,11 +1281,11 @@ CKEDITOR.customprocessor.prototype =
 
  	    return realElement;
     },
-	
+
 	ieFixHTML: function(html, convertToLowerCase){
 		var zz = html;
 		var z = zz.match(/<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/g);
-		
+
 		if (z) {
 			for (var i = 0; i < z.length; i++) {
 				var y, zSaved = z[i], attrRE = /\=[a-zA-Z\.\:\[\]_\(\)\&\$\%#\@\!0-9]+[?\s+|?>]/g;
