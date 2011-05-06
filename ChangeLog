@@ -1,6 +1,12 @@
 WYSIWYG extension ChangeLog
 ===========================
 
+VERSION 1.4.1_1
+
+  BUGFIXES:
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=14540
+      File links in WYSIWYG are broken
+
 
 VERSION 1.4.1
 
