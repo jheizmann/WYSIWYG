@@ -2,7 +2,7 @@
 <deploydescriptor>
 	<global>
 		<version>141</version>
-        <patchlevel>1</patchlevel>
+        <patchlevel>2</patchlevel>
 		<id>wysiwyg</id>
         <license>GPL-v2</license>
 		<vendor>Ontoprise GmbH</vendor>
