@@ -1,6 +1,13 @@
 WYSIWYG extension ChangeLog
 ===========================
 
+VERSION 1.4.1_2
+
+  BUGFIXES:
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=14449
+      Create query from wikitext editor missing in Semantic toolbar
+
+
 VERSION 1.4.1_1
 
   BUGFIXES:
