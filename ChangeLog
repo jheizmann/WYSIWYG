@@ -1,6 +1,16 @@
 WYSIWYG extension ChangeLog
 ===========================
 
+VERSION 1.4.1_3
+
+  BUGFIXES:
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=14611
+      When creating a link to a file then the filenamespace is added twice
+    * Fix bug http://smwforum.ontoprise.com/smwbugs/show_bug.cgi?id=14317
+      Bugfix did not work when WYSIWYG extension was installed w/o SMW and the
+      Halo extension.
+
+
 VERSION 1.4.1_2
 
   BUGFIXES:
