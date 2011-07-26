@@ -1464,7 +1464,10 @@ CKEDITOR.customprocessor.prototype =
 	
 	ieFixHTML: function(html, convertToLowerCase){
 		var zz = html;
-		var z = zz.match(/<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/g);
+            
+            //bugfix 15244: regex to match all existing tags with or without attributes
+            //var z = zz.match(/<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/g);
+            var z = zz.match(/<\/?\w+\s*([\w\-]+\s*=[\"\']*[\w:;\-\s\/\.]+[\"\']*\s*)*\/?>/g);
 		
 		if (z) {
 			for (var i = 0; i < z.length; i++) {

@@ -244,6 +244,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             // image
             imgTitle        : 'Mediawiki Image',
             fileName        : 'Image file name',
+            fileNameExtUrl  : 'Image file name or URL',
             searchLabel     : 'Automatic search results (%s)',
             noImgFound      : 'no images found',
             oneImgFound     : 'one image found',
@@ -278,6 +279,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             // image
             imgTitle        : 'Mediawiki Bild',
             fileName        : 'Dateiname',
+            fileNameExtUrl  : 'Dateiname oder URL',
             searchLabel     : 'automatische Suchergebnisse (%s)',
             noImgFound      : 'keine Bilder gefunden',
             oneImgFound     : '1 Bild gefunden',
@@ -555,7 +557,8 @@ CKEDITOR.customprocessor.prototype =
 					return;
 
                 // get real element from fake element
-                if ( htmlNode.getAttribute( 'data-cke-realelement' ) ) {
+//			    if ( htmlNode.getAttribute( 'data-cke-realelement' ) ) {
+	            if ( htmlNode.getAttribute( 'data-cke-realelement' ) ) {
                     this._AppendNode( this._getRealElement( htmlNode ), stringBuilder, prefix );
                     return;
                 }
@@ -737,21 +740,6 @@ CKEDITOR.customprocessor.prototype =
 							if ( href == null ) {
 								href = htmlNode.getAttribute( 'href' ) || '';
 							}
-<<<<<<< .mine
-
-							//fix: Issue 14792 - Link with anchor is changed
-							//hrefType is a substring of href from the beginning until the colon. 
-							//it consists only of alphanumeric chars and optional url encoded chars in the middle.
-							var hrefTypeRegexp = /^(\w+(?:%\d{0,3})*\w*):/i;
-							var matches = href.match(hrefTypeRegexp);
-							if(hrefType == '' && matches) {
-								hrefType = matches[1]; 
-							}
-							
-//						  if ( hrefType == '' && href.indexOf(':') > -1) {
-//                            hrefType = href.substring(0, href.indexOf(':')).toLowerCase();
-//						  }
-=======
 							
 							//fix: Issue 14792 - Link with anchor is changed
 							//hrefType is a substring of href from the beginning until the colon. 
@@ -765,11 +753,14 @@ CKEDITOR.customprocessor.prototype =
 //						  if ( hrefType == '' && href.indexOf(':') > -1) {
 //                            hrefType = href.substring(0, href.indexOf(':')).toLowerCase();
 //						  }
->>>>>>> .r11163
 
 							var isWikiUrl = true;
 
-							if ( hrefType != "" && hrefType != "http" && hrefType != "mailto" && !href.StartsWith(hrefType.FirstToUpper() + ':') )
+							if ( hrefType != "" && 
+                                 hrefType != "http" &&
+                                 hrefType != "https" &&
+                                 hrefType != "mailto" &&
+                                 !href.StartsWith(hrefType.FirstToUpper() + ':') )
 								stringBuilder.push( '[[' + hrefType.FirstToUpper() + ':' );
 							else if ( htmlNode.className == "extiw" ){
 								stringBuilder.push( '[[' );
@@ -1473,7 +1464,10 @@ CKEDITOR.customprocessor.prototype =
 	
 	ieFixHTML: function(html, convertToLowerCase){
 		var zz = html;
-		var z = zz.match(/<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/g);
+            
+            //bugfix 15244: regex to match all existing tags with or without attributes
+			//var z = zz.match(/<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/g);
+            var z = zz.match(/<\/?\w+\s*([\w\-]+\s*=[\"\']*[\w:;\-\s\/\.]+[\"\']*\s*)*\/?>/g);
 		
 		if (z) {
 			for (var i = 0; i < z.length; i++) {
