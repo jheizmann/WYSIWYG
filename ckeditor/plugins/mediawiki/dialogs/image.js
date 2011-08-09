@@ -395,12 +395,12 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                     {
                                         id: 'imgAlign',
                                         type: 'select',
-                                        label: editor.lang.image.align,
+                                        label: editor.lang.common.align,
                                         items: [
                                             [ ' ' ],
-                                            [ editor.lang.image.alignRight, 'Right' ],
-                                            [ editor.lang.image.alignLeft , 'Left' ],
-                                            [ editor.lang.mwplugin.alignCenter, 'Center' ]
+                                            [ editor.lang.common.alignRight, 'Right' ],
+                                            [ editor.lang.common.alignLeft , 'Left' ],
+                                            [ editor.lang.common.alignCenter, 'Center' ]
                                         ],
                                         setup : function( type, element ) {
                                             var className = element.getAttribute( 'class') || '',
@@ -436,7 +436,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                     {
                                         id: 'imgWidth',
                                         type: 'text',
-                                        label: editor.lang.image.width,
+                                        label: editor.lang.common.width,
                                         size: '4',
                                         setup : function( type, element ) {
                                             var imgStyle = element.getAttribute( 'style') || '',
@@ -479,7 +479,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                                     {
                                         id: 'imgHeight',
                                         type: 'text',
-                                        label: editor.lang.image.height,
+                                        label: editor.lang.common.height,
                                         size: '4',
                                         setup : function( type, element ) {
                                             var imgStyle = element.getAttribute( 'style') || '',
@@ -520,11 +520,6 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 											}
 										}
 
-                                    },
-                                    {
-                                        type: 'html',
-                                        width: '100%',
-                                        html: ''
                                     }
                                 ]
                         }
