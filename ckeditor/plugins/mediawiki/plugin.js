@@ -403,22 +403,7 @@ CKEDITOR.customprocessor.prototype =
 	_inLSpace : false,
 
    toHtml : function( data, fixForBody )
-   {
-        // all converting to html (like: data = data.replace( /</g, '&lt;' );)
-        var loadHTMLFromAjax = function( result ){
-            if (window.parent.popup &&
-                window.parent.popup.parent.wgCKeditorInstance &&
-                window.parent.popup.parent.wgCKeditorCurrentMode != 'wysiwyg') {
-
-                window.parent.popup.parent.wgCKeditorInstance.setData(result.responseText);
-                window.parent.popup.parent.wgCKeditorCurrentMode = 'wysiwyg';
-            }
-            else if (window.parent.wgCKeditorInstance &&
-                     window.parent.wgCKeditorCurrentMode != 'wysiwyg') {
-                window.parent.wgCKeditorInstance.setData(result.responseText);
-                window.parent.wgCKeditorCurrentMode = 'wysiwyg';
-            }
-        }
+    {
         // Hide the textarea to avoid seeing the code change.
         //textarea.hide();
         var loading = document.createElement( 'span' );
@@ -429,24 +414,24 @@ CKEDITOR.customprocessor.prototype =
 
         // prevent double transformation because of some weird runtime issues
         // with the event dataReady in the smwtoolbar plugin
-        if (!(data.indexOf('<p>') == 0 &&
-              data.match(/<.*?_fck_mw/) || data.match(/class="fck_mw_\w+"/i)) ) {
-
-            // Use Ajax to transform the Wikitext to HTML.
-            if( window.parent.popup ){
-                window.parent.popup.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.popup.wgPageName], loadHTMLFromAjax );
-            } else {
-                window.parent.FCK_sajax( 'wfSajaxWikiToHTML', [data, window.parent.wgPageName], loadHTMLFromAjax );
-            }
+        // transform only if
+        // 1. there are no html attributes in data string starting with "_fck" or "_cke"
+        // 2. the data string doesn't start with "<p>"
+        // 3. the data string doesn't contain html tags except for <span>, <br>, <p>, <sup|ul|ol|li|u|div> (those are also used in wikitext-html) 
+        var dataWithTags = data.replace(/<\/?(?:span|div|br|p|sup|ul|ol|li|u)[^\/>]*\/?>/ig, '');
+        var dataWithoutTags = dataWithTags.replace(/<\/?\w+(?:(?:\s+[\w@\-]+(?:\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/ig, '');
+        if (data.indexOf('<p>') != 0 && !data.match(/<.*?(?:_fck|_cke)/) && dataWithoutTags.length === dataWithTags.length) {
+            data = sajax_do_call_jq('wfSajaxWikiToHTML', [data, window.parent.wgPageName]);
+            
         }
         var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
         writer = new CKEDITOR.htmlParser.basicWriter();
 
         fragment.writeHtml( writer, this.dataFilter );
-	    data = writer.getHtml( true );
+        data = writer.getHtml( true );
        
-	    return data;
-   },
+        return data;
+     },
 
 	/*
 	 * Converts a DOM (sub-)tree to a string in the data format.
@@ -1467,7 +1452,7 @@ CKEDITOR.customprocessor.prototype =
             
             //bugfix 15244: regex to match all existing tags with or without attributes
             //var z = zz.match(/<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/g);
-            var z = zz.match(/<\/?\w+\s*([\w\-]+\s*=[\"\']*[\w:;\-\s\/\.]+[\"\']*\s*)*\/?>/g);
+            var z = zz.match(/<\/?\w+(?:(?:\s+[\w@\-]+(?:\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/g);
 		
 		if (z) {
 			for (var i = 0; i < z.length; i++) {
