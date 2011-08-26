@@ -93,5 +93,8 @@ CKEDITOR.editorConfig = function( config )
     //remove unnecessary plugins
     //list style is not preserved in wikitext
     config.removePlugins = 'liststyle';
+    
+    //don't remove empty format elements when loading HTML
+    CKEDITOR.dtd.$removeEmpty['span'] = 0
 
 };

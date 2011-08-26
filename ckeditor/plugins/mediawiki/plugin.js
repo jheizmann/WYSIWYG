@@ -11,7 +11,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 CKEDITOR.plugins.add( 'mediawiki',
 {
     requires : [ 'fakeobjects', 'htmlwriter', 'dialog', 'ajax' ],
-
     init : function( editor )
     {                
         // add the CSS for general styles of Mediawiki elements
@@ -192,42 +191,55 @@ CKEDITOR.plugins.add( 'mediawiki',
                     switch ( eClassName ){
                         case 'fck_mw_source' :
                             className = 'FCK__MWSource';
+                            break;
                         case 'fck_mw_ref' :
                             if (className == null)
                                 className = 'FCK__MWRef';
+                            break;
                         case 'fck_mw_references' :
                             if ( className == null )
                                 className = 'FCK__MWReferences';
+                            break;
                         case 'fck_mw_template' :
                             if ( className == null ) //YC
                                 className = 'FCK__MWTemplate'; //YC
+                            break;
                         case 'fck_mw_magic' :
                             if ( className == null )
                                 className = 'FCK__MWMagicWord';
+                            break;
                         case 'fck_mw_special' : //YC
                             if ( className == null )
                                 className = 'FCK__MWSpecial';
+                            break;
                         case 'fck_mw_nowiki' :
                             if ( className == null )
                                 className = 'FCK__MWNowiki';
+                            break;
                         case 'fck_mw_html' :
                             if ( className == null )
-                                className = 'FCK__MWHtml';                 
+                                className = 'FCK__MWHtml';      
+                            break;
                         case 'fck_mw_gallery' :
                             if ( className == null )
                                 className = 'FCK__MWGallery';                       
                         case 'fck_mw_signature' :
                             if ( className == null )
                                 className = 'FCK__MWSignature';
+                            break;
                         case 'fck_smw_query' :
                             if ( className == null )
                                 className = 'FCK__SMWquery';
+                            break;                            
                         case 'fck_smw_webservice' :
                             if ( className == null )
                                 className = 'FCK__SMWwebservice'
+                            break;
                         case 'fck_smw_rule' :
                             if ( className == null )
                                 className = 'FCK__SMWrule'
+                            break;
+                        default:
                             if ( className )
                                 return editor.createFakeParserElement( element, className, 'span' );
                             break;
@@ -557,7 +569,6 @@ CKEDITOR.customprocessor.prototype =
         if (window.DOMParser) {
             parser = new DOMParser();
             xmlDoc = parser.parseFromString(data,"text/xml");   
-            data = this.ieFixHTML(data);
         }
         else // Internet Explorer
         {
