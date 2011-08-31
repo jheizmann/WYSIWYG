@@ -122,6 +122,8 @@ class CKeditorSkin {
 		$img = new Image( $nt );
 		$imgName = $img->getName();
 		$found = $img->getURL();
+                $srcPart = '';
+                $url = '';
 
 		if( !empty( $frameParams['alt'] ) && $frameParams['alt'] == 'RTENOTITLE' ){ // 2223
 			$frameParams['alt'] = '';
@@ -134,8 +136,8 @@ class CKeditorSkin {
 				$srcPart = substr( $originalLink, strpos( $originalLink, "src=" ) + 5 );
 				$url = strtok( $srcPart, '"' );
 			}
-			$srcPart = substr( $originalLink, strpos( $originalLink, "src=" ) + 5 );
-			$url = strtok( $srcPart, '"' );
+//			$srcPart = substr( $originalLink, strpos( $originalLink, "src=" ) + 5 );
+//			$url = strtok( $srcPart, '"' );
 		}
 
 		// Shortcuts
@@ -194,7 +196,11 @@ class CKeditorSkin {
 
 		if( isset( $fp['alt'] ) && !empty( $fp['alt'] ) && $fp['alt'] != 'Image:' . $orginal ) {
 			$ret .= "alt=\"" . htmlspecialchars( $fp['alt'] ) . "\" ";
-		} else {
+		}
+                else if(isset( $fp['caption'] ) && !empty($fp['caption'])){
+                        $ret .= "alt=\"" . htmlspecialchars( $fp['caption'] ) . "\" ";
+                }
+                else {
 			$ret .= "alt=\"\" ";
 		}
 
