@@ -362,7 +362,7 @@ CKEDITOR.plugins.add( 'mediawiki',
         CKEDITOR.dialog.add( 'MWSpecialTags', this.path + 'dialogs/special.js' );
         editor.addCommand( 'MWSignature', signatureCommand);    
         
-        // if SMWHalo is not installed use original image and link dialogs
+        // if SMWHalo is installed use smw image and link dialogs
         if (('SMW_HALO_VERSION').InArray(window.parent.wgCKeditorUseBuildin4Extensions)){
             editor.addCommand( 'image', new CKEDITOR.dialogCommand( 'MWImage' ) );
             CKEDITOR.dialog.add( 'MWImage', this.path + 'dialogs/image.js' );
@@ -407,22 +407,24 @@ CKEDITOR.plugins.add( 'mediawiki',
         editor.on( 'doubleclick', function( evt )
         {
             var element = CKEDITOR.plugins.link.getSelectedLink( editor ) || evt.data.element;
-
             if ( element.is( 'a' ) || ( element.is( 'img' ) && element.getAttribute( 'data-cke-real-element-type' ) == 'anchor' ) ){
                 if (('SMW_HALO_VERSION').InArray(window.parent.wgCKeditorUseBuildin4Extensions)){
                     evt.data.dialog = 'MWLink';
                 }
-                else{
-                    evt.data.dialog = 'link';
-                }
+//                else{
+//                    evt.data.dialog = 'link';
+//                }
             }
             else if ( element.is( 'img' ) && !element.getAttribute( 'data-cke-real-element-type' ) ){
+//                alert('in else if');
                 if (('SMW_HALO_VERSION').InArray(window.parent.wgCKeditorUseBuildin4Extensions)){
+//                    alert('SMW_HALO_VERSION installed: ' + ('SMW_HALO_VERSION').InArray(window.parent.wgCKeditorUseBuildin4Extensions));
+//                    alert('evt.data.dialog = ' + evt.data.dialog);
                     evt.data.dialog = 'MWImage';
                 }
-                else{
-                    evt.data.dialog = 'image';
-                }
+//                else{
+//                    evt.data.dialog = 'image';
+//                }
             }
             else if ( element.getAttribute( 'class' ) &&
                 element.getAttribute( 'class' ).InArray( [
@@ -438,13 +440,10 @@ CKEDITOR.plugins.add( 'mediawiki',
                     ])
                     )
             {
-                   
                     evt.data.dialog = 'MWSpecialTags';	
                     
             }
-                	
-            
-                
+                	   
         })
         
 //add method loadXmlHalo to CKEDITOR.ajax for calling server side funcrions over ajax
@@ -546,13 +545,15 @@ CKEDITOR.customprocessor.prototype =
         // also remove <br/> before nested lists
         data = data.replace(/<br\/>(\s*<(ol|ul)>)/gi, '$1');
         // in IE the values of the class and alt attribute are not quoted
-        data = data.replace(/class=([^\"\'].*?)\s/gi, 'class="$1" ');
-        
-        data = data.replace(/alt=([^\"\'].*?)\s/gi, 'alt="$1" ');
+
+        data = data.replace(/class=([^\"\'].*?)(?=[\s*|>])/gi, 'class="$1" ');
+
+        data = data.replace(/alt=([^\"\'\s].*?)(?=[\s*|>])/gi, 'alt="$1" ');
        
         // when inserting data with Excel an unmatched <col> element exists, thus remove it
         data = data.replace(/<col[^>]*>/gi, '' );
-		
+	
+        	
         var rootNode = this._getNodeFromHtml( data );
         // rootNode is <body>.
         // Normalize the document for text node processing (except IE - #1586).
@@ -578,13 +579,16 @@ CKEDITOR.customprocessor.prototype =
 
             xmlDoc = new ActiveXObject('Microsoft.XMLDOM');            
             xmlDoc.async = false;
+            
+            
             xmlDoc.loadXML(data);
             
+            
             //Xml validation. Uncomment and change to true for debugging purposes
-//            xmlDoc.validateOnParse = false;
-//            if (xmlDoc.parseError.errorCode != 0) {
-//               alert(xmlDoc.parseError.reason + ':\n' + xmlDoc.xml);
-//            }  
+            xmlDoc.validateOnParse = true;
+            if (xmlDoc.parseError.errorCode != 0) {
+               alert(xmlDoc.parseError.reason + ':\n' + xmlDoc.xml);
+            }  
         }
         var rootNode = xmlDoc.documentElement;
         return rootNode;
