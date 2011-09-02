@@ -4,7 +4,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 (function()
-{   alert('original image dialog');
+{
 	var imageDialog = function( editor, dialogType )
 	{
 		// Load image preview.
