@@ -411,20 +411,17 @@ CKEDITOR.plugins.add( 'mediawiki',
                 if (('SMW_HALO_VERSION').InArray(window.parent.wgCKeditorUseBuildin4Extensions)){
                     evt.data.dialog = 'MWLink';
                 }
-//                else{
-//                    evt.data.dialog = 'link';
-//                }
+                else{
+                    evt.data.dialog = 'link';
+                }
             }
             else if ( element.is( 'img' ) && !element.getAttribute( 'data-cke-real-element-type' ) ){
-//                alert('in else if');
-                if (('SMW_HALO_VERSION').InArray(window.parent.wgCKeditorUseBuildin4Extensions)){
-//                    alert('SMW_HALO_VERSION installed: ' + ('SMW_HALO_VERSION').InArray(window.parent.wgCKeditorUseBuildin4Extensions));
-//                    alert('evt.data.dialog = ' + evt.data.dialog);
+                if (('SMW_HALO_VERSION').InArray(window.parent.wgCKeditorUseBuildin4Extensions)){                
                     evt.data.dialog = 'MWImage';
                 }
-//                else{
-//                    evt.data.dialog = 'image';
-//                }
+                else{
+                    evt.data.dialog = 'image';
+                }
             }
             else if ( element.getAttribute( 'class' ) &&
                 element.getAttribute( 'class' ).InArray( [
@@ -579,16 +576,14 @@ CKEDITOR.customprocessor.prototype =
 
             xmlDoc = new ActiveXObject('Microsoft.XMLDOM');            
             xmlDoc.async = false;
-            
-            
+                        
             xmlDoc.loadXML(data);
-            
-            
+                        
             //Xml validation. Uncomment and change to true for debugging purposes
-            xmlDoc.validateOnParse = true;
-            if (xmlDoc.parseError.errorCode != 0) {
-               alert(xmlDoc.parseError.reason + ':\n' + xmlDoc.xml);
-            }  
+//            xmlDoc.validateOnParse = true;
+//            if (xmlDoc.parseError.errorCode != 0) {
+//               alert(xmlDoc.parseError.reason + ':\n' + xmlDoc.xml);
+//            }  
         }
         var rootNode = xmlDoc.documentElement;
         return rootNode;
@@ -962,8 +957,7 @@ CKEDITOR.customprocessor.prototype =
                                         }
                                         // not a <tr> found, then we only accept templates and special functions
                                         // which then probably build the table row in the wiki text
-                                        else if (currentTagName == "img") {
-                                            //alert('class: ' + currentNode.className);
+                                        else if (currentTagName == "img") {                                            
                                             switch (currentNode.className) {
                                                 case "FCK__MWSpecial" :
                                                 case "FCK__MWTemplate" :

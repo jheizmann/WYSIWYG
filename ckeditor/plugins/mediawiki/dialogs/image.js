@@ -1,5 +1,5 @@
-CKEDITOR.dialog.add( 'MWImage', function( editor ) {    
-    {       
+CKEDITOR.dialog.add( 'MWImage', function( editor )
+    {
         // Load image preview.
         var IMAGE = 1,
         LINK = 2,
@@ -12,7 +12,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
         imgLabelField = (window.parent.wgAllowExternalImages || window.parent.wgAllowExternalImagesFrom )
         ? editor.lang.mwplugin.fileNameExtUrl
         : editor.lang.mwplugin.fileName;
-
+        
         var onImgLoadEvent = function()	{
             // Image is ready.
             var original = this.originalElement;
@@ -36,6 +36,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
             this.firstLoad = false;
             this.dontResetSize = false;
         };
+        
 
         var onImgLoadErrorEvent = function(){
             // Error. Image is not loaded.
@@ -53,6 +54,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
             // Hide loader
             CKEDITOR.document.getById( imagePreviewLoaderId ).setStyle( 'display', 'none' );
         };
+        
 
         var searchTimer, searchPagesTimer,
         searchLabel = editor.lang.mwplugin.searchLabel,
@@ -281,7 +283,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                             },
                        
                             setup : function( type, element )
-                            {
+                            {                              
                                 if ( type == IMAGE )
                                 {
                                     var url = element.getAttribute( '_fck_mw_filename' ) ||
@@ -408,7 +410,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 
                                 imageLinkElement.setValue(selectedPage.replace(/_/g, ' '));                         
                             }
-                        },
+                        }
                         ]
                     },
                     {
@@ -526,7 +528,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                         ],
                         setup : function( type, element ) {
                             var className = element.getAttribute( 'class') || '',
-                            align = className.replace(/fck_mw_(right|left|center)/, '$1');
+                            align = className.replace(/[\w\s]*fck_mw_(right|left|center)[\w\s]*/, '$1');
                             if ( type == IMAGE && align )
                                 this.setValue( align.FirstToUpper() );
                         },
@@ -562,9 +564,12 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                         setup : function( type, element ) {
                             var imgStyle = element.getAttribute( 'style') || '',
                             match = /(?:^|\s)width\s*:\s*(\d+)/i.exec( imgStyle ),
-                            imgStyleWidth = match && match[1] || 0;
-                            if ( type == IMAGE && imgStyleWidth )
-                                this.setValue( imgStyleWidth );
+                            imgWidth = match && match[1] || 0;
+                            if(!imgWidth){
+                                imgWidth = element.getAttribute('_fck_mw_width');
+                            }
+                            if ( type == IMAGE && imgWidth )
+                                this.setValue( imgWidth );
                         },
                         commit : function( type, element, internalCommit ) {
                             var value = this.getValue();
@@ -604,9 +609,12 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
                         setup : function( type, element ) {
                             var imgStyle = element.getAttribute( 'style') || '',
                             match = /(?:^|\s)height\s*:\s*(\d+)/i.exec( imgStyle ),
-                            imgStyleWidth = match && match[1] || 0;
-                            if ( type == IMAGE && imgStyleWidth )
-                                this.setValue( imgStyleWidth );
+                            imgHeight = match && match[1] || 0;
+                            if(!imgHeight){
+                                imgHeight = element.getAttribute('_fck_mw_height');
+                            }
+                            if ( type == IMAGE && imgHeight )
+                                this.setValue( imgHeight );
                         },
                         commit : function( type, element, internalCommit )
                         {
@@ -686,8 +694,7 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
             },
 
             onShow : function()
-            {             
-                
+            {
                 this.imageEditMode = false;
                 this.dontResetSize = false;
                 
@@ -776,5 +783,4 @@ CKEDITOR.dialog.add( 'MWImage', function( editor ) {
 
 
         }
-    }
-});
+    });
