@@ -750,6 +750,9 @@ class CKeditorParser extends CKeditorParserWrapper {
 			}
 			$text = strtr( $parserOutput->getText(), $this->fck_mw_strtr_span );
 			$parserOutput->setText( strtr( $text, $this->fck_mw_strtr_span ) );
+                        
+                        //bug fix for Issue 15470: replace fckLR strings with <br/> tags
+                        $parserOutput->setText( strtr( $parserOutput->getText(), array('fckLR' => '<br fcklr="true"/>') ) );
 		}
         
         // there were properties, look for the placeholder FCK_PROPERTY_X_FOUND and replace
@@ -1161,19 +1164,22 @@ class CKeditorParser extends CKeditorParserWrapper {
 	    if (($wgRequest->getVal('action') == 'ajax') ||
 	        ($wgTitle && (defined('SMW_NS_PROPERTY') && $wgTitle->getNamespace() == SMW_NS_PROPERTY) ||
              $wgTitle->getNamespace() == NS_CATEGORY )) {
-         */
+         */  
 	        if (preg_match_all('/<rule[^>]*>.*?<\/rule>/is', $text, $matches)) {
 	             for ($i= 0; $i<count($matches[0]); $i++) {
-	                 $this->fck_mw_strtr_span['Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw']=
-	                     '<span class="fck_smw_rule">'.htmlentities($matches[0][$i]).'</span>';
-	                 $this->fck_mw_strtr_span['href="Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw"']=
-	                     'href="'.$matches[0][$i].'"';
-                     $key = 'Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw';
-                     $this->fck_mw_strtr_span_counter++;
-                     $cnt=1;
-	                 $text = str_replace($matches[0][$i], $key, $text, $cnt);
+                         preg_match_all('/<rule[^>]*>(.*?)<\/rule>/is', $matches[0][$i], $ruleContent);
+                         if(count($ruleContent) > 1){
+                             $this->fck_mw_strtr_span['Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw']=
+                                 '<span class="fck_smw_rule">'.htmlentities($ruleContent[1][0]).'</span>';
+                             $this->fck_mw_strtr_span['href="Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw"']=
+                                 'href="'.htmlentities($ruleContent[1][0]).'"';
+                             $key = 'Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw';
+                             $this->fck_mw_strtr_span_counter++;
+                             $cnt=1;
+                             $text = str_replace($matches[0][$i], $key, $text, $cnt);
 	             }
-	        }
+                    }
+                }
         /*
 	    }
          */

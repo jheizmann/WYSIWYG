@@ -188,62 +188,63 @@ CKEDITOR.plugins.add( 'mediawiki',
                 {
                     var eClassName = element.attributes['class'] || '';
                     var className = null;
+                    var result;
                     switch ( eClassName ){
                         case 'fck_mw_source' :
                             className = 'FCK__MWSource';
+                            result = editor.createFakeParserElement( element, className, 'span' );
                             break;
-                        case 'fck_mw_ref' :
-                            if (className == null)
-                                className = 'FCK__MWRef';
+                        case 'fck_mw_ref' :                          
+                            className = 'FCK__MWRef';
+                            result = editor.createFakeParserElement( element, className, 'span' );
                             break;
                         case 'fck_mw_references' :
-                            if ( className == null )
-                                className = 'FCK__MWReferences';
+                            className = 'FCK__MWReferences';
+                            result = editor.createFakeParserElement( element, className, 'span' );
                             break;
                         case 'fck_mw_template' :
-                            if ( className == null ) //YC
-                                className = 'FCK__MWTemplate'; //YC
+                            className = 'FCK__MWTemplate'; //YC
+                            result = editor.createFakeParserElement( element, className, 'span' );
                             break;
                         case 'fck_mw_magic' :
-                            if ( className == null )
-                                className = 'FCK__MWMagicWord';
+                            className = 'FCK__MWMagicWord';
+                            result = editor.createFakeParserElement( element, className, 'span' );
                             break;
-                        case 'fck_mw_special' : //YC
-                            if ( className == null )
-                                className = 'FCK__MWSpecial';
+                        case 'fck_mw_special' : 
+                            className = 'FCK__MWSpecial';
+                            result = editor.createFakeParserElement( element, className, 'span' );
                             break;
                         case 'fck_mw_nowiki' :
-                            if ( className == null )
-                                className = 'FCK__MWNowiki';
+                            className = 'FCK__MWNowiki';
+                            result = editor.createFakeParserElement( element, className, 'span' );
                             break;
                         case 'fck_mw_html' :
-                            if ( className == null )
-                                className = 'FCK__MWHtml';      
+                            className = 'FCK__MWHtml';      
+                            result = editor.createFakeParserElement( element, className, 'span' );
                             break;
                         case 'fck_mw_gallery' :
-                            if ( className == null )
-                                className = 'FCK__MWGallery';                       
+                            className = 'FCK__MWGallery';                       
+                            result = editor.createFakeParserElement( element, className, 'span' );
                         case 'fck_mw_signature' :
-                            if ( className == null )
-                                className = 'FCK__MWSignature';
+                            className = 'FCK__MWSignature';
+                            result = editor.createFakeParserElement( element, className, 'span' );
                             break;
                         case 'fck_smw_query' :
-                            if ( className == null )
-                                className = 'FCK__SMWquery';
+                            className = 'FCK__SMWquery';
+                            result = editor.createFakeParserElement( element, className, 'span' );
                             break;                            
                         case 'fck_smw_webservice' :
-                            if ( className == null )
-                                className = 'FCK__SMWwebservice'
+                            className = 'FCK__SMWwebservice'
+                            result = editor.createFakeParserElement( element, className, 'span' );
                             break;
                         case 'fck_smw_rule' :
-                            if ( className == null )
-                                className = 'FCK__SMWrule'
+                            className = 'FCK__SMWrule'
+                            result = editor.createFakeParserElement( element, className, 'span' );
                             break;
-                        default:
-                            if ( className )
-                                return editor.createFakeParserElement( element, className, 'span' );
+                        default:                            
                             break;
                     }
+                    return result;
                 }
             }
         };
@@ -491,8 +492,8 @@ CKEDITOR.customprocessor.prototype =
         // transform only if
         // 1. there are no html attributes in data string starting with "_fck" or "_cke"
         // 2. the data string doesn't start with "<p>"
-        // 3. the data string doesn't contain html tags except for <span>, <br>, <p>, <sup|ul|ol|li|u|div> (those are also used in wikitext-html) 
-        var dataWithTags = data.replace(/<\/?(?:span|div|br|p|sup|ul|ol|li|u)[^\/>]*\/?>/ig, '');
+        // 3. the data string doesn't contain html tags except for <span|div|br|p|sup|ul|ol|li|u|nowiki|includeonly|noinclude|onlyinclude|galery> (those are also used in wikitext-html) 
+        var dataWithTags = data.replace(/<\/?(?:span|div|br|p|sup|ul|ol|li|u|nowiki|includeonly|noinclude|onlyinclude|galery|rule)[^\/>]*\/?>/ig, '');
         var dataWithoutTags = dataWithTags.replace(/<\/?\w+(?:(?:\s+[\w@\-]+(?:\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/ig, '');
         if (data.indexOf('<p>') != 0 && !data.match(/<.*?(?:_fck|_cke)/) && dataWithoutTags.length === dataWithTags.length) {
             data = CKEDITOR.ajax.loadHalo('wfSajaxWikiToHTML', [data, window.parent.wgPageName]);          
@@ -549,6 +550,9 @@ CKEDITOR.customprocessor.prototype =
        
         // when inserting data with Excel an unmatched <col> element exists, thus remove it
         data = data.replace(/<col[^>]*>/gi, '' );
+        
+        //fix for invalid entity error in XML parser
+        data = data.replace(/&nbsp;/gi, '&#xA0;');
 	
         	
         var rootNode = this._getNodeFromHtml( data );
@@ -563,28 +567,47 @@ CKEDITOR.customprocessor.prototype =
         this._AppendNode( rootNode, stringBuilder, '' );
         return stringBuilder.join( '' ).Trim();
     },
-
-    _getNodeFromHtml : function( data ) {
-        var xmlDoc;
-        if (window.DOMParser) {
-            parser = new DOMParser();
-            xmlDoc = parser.parseFromString(data,"text/xml");   
+    
+    loadXMLString: function(data){
+        var xmlDoc = '';
+        if (window.DOMParser)
+        {
+            parser=new DOMParser();
+            xmlDoc=parser.parseFromString(data,"text/xml");
         }
         else // Internet Explorer
         {
-            data = this.ieFixHTML(data);
-
-            xmlDoc = new ActiveXObject('Microsoft.XMLDOM');            
-            xmlDoc.async = false;
-                        
+            xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
+            xmlDoc.async="false";
             xmlDoc.loadXML(data);
-                        
+            
             //Xml validation. Uncomment and change to true for debugging purposes
-//            xmlDoc.validateOnParse = true;
-//            if (xmlDoc.parseError.errorCode != 0) {
-//               alert(xmlDoc.parseError.reason + ':\n' + xmlDoc.xml);
-//            }  
+            xmlDoc.validateOnParse = true;
+            if (xmlDoc.parseError.errorCode != 0) {
+                alert(xmlDoc.parseError.reason + ':\n' + xmlDoc.xml);
+            }  
+        }       
+        
+        return xmlDoc;
+    },
+    
+    loadXMLDoc : function( url ) {
+        var xhttp;
+        if (window.XMLHttpRequest)
+        {
+            xhttp=new XMLHttpRequest();
         }
+        else
+        {
+            xhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xhttp.open("GET", url, false);
+        xhttp.send();
+        return xhttp.responseXML;
+    },
+
+    _getNodeFromHtml : function( data ) {
+        var xmlDoc = this.loadXMLString(data);          
         var rootNode = xmlDoc.documentElement;
         return rootNode;
     },
