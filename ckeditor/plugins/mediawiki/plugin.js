@@ -529,7 +529,7 @@ CKEDITOR.customprocessor.prototype =
         
         if (CKEDITOR.env.ie) {
             data = this.ieFixHTML(data);
-        }       
+        }  
 //        data = '<body xmlns:x="http://excel">' + data.htmlEntities()+ '</body>';
         data = '<body xmlns:x="http://excel">' + data + '</body>';
         // fix <img> tags
@@ -552,9 +552,8 @@ CKEDITOR.customprocessor.prototype =
         data = data.replace(/<col[^>]*>/gi, '' );
         
         //fix for invalid entity error in XML parser
-        data = data.replace(/&nbsp;/gi, '&#xA0;');
+        data = data.replace(/&nbsp;/gi, '&#xA0;');       
 	
-        	
         var rootNode = this._getNodeFromHtml( data );
         // rootNode is <body>.
         // Normalize the document for text node processing (except IE - #1586).
@@ -581,11 +580,11 @@ CKEDITOR.customprocessor.prototype =
             xmlDoc.async="false";
             xmlDoc.loadXML(data);
             
-            //Xml validation. Uncomment and change to true for debugging purposes
-            xmlDoc.validateOnParse = true;
-            if (xmlDoc.parseError.errorCode != 0) {
-                alert(xmlDoc.parseError.reason + ':\n' + xmlDoc.xml);
-            }  
+            //IE xml validation. Uncomment for debugging purposes
+            //xmlDoc.validateOnParse = true;
+            //if (xmlDoc.parseError.errorCode != 0) {
+                //alert(xmlDoc.parseError.errorCode + ':  ' + xmlDoc.parseError.reason + '\nOn line: ' + xmlDoc.parseError.line + '\n-----------\n' + data);
+            //}  
         }       
         
         return xmlDoc;
@@ -1504,6 +1503,12 @@ CKEDITOR.customprocessor.prototype =
             var attributes = element.attributes;
             var realHtml = attributes && attributes.getNamedItem('data-cke-realelement');
             var realNode = realHtml && decodeURIComponent( realHtml.nodeValue );
+            
+            //IE creates invalid html, so we have to fix it before attempting to load it into xml dom
+            if (CKEDITOR.env.ie) {
+                realNode = this.ieFixHTML(realNode);
+            }  
+            
             var realElement = realNode && this._getNodeFromHtml( realNode );
 
             // If we have width/height in the element, we must move it into

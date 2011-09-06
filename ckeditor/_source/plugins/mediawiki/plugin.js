@@ -194,7 +194,7 @@ CKEDITOR.plugins.add( 'mediawiki',
                             className = 'FCK__MWSource';
                             result = editor.createFakeParserElement( element, className, 'span' );
                             break;
-                        case 'fck_mw_ref' :                          
+                        case 'fck_mw_ref' :
                             className = 'FCK__MWRef';
                             result = editor.createFakeParserElement( element, className, 'span' );
                             break;
@@ -210,7 +210,7 @@ CKEDITOR.plugins.add( 'mediawiki',
                             className = 'FCK__MWMagicWord';
                             result = editor.createFakeParserElement( element, className, 'span' );
                             break;
-                        case 'fck_mw_special' : 
+                        case 'fck_mw_special' :
                             className = 'FCK__MWSpecial';
                             result = editor.createFakeParserElement( element, className, 'span' );
                             break;
@@ -241,7 +241,7 @@ CKEDITOR.plugins.add( 'mediawiki',
                             className = 'FCK__SMWrule'
                             result = editor.createFakeParserElement( element, className, 'span' );
                             break;
-                        default:                            
+                        default:
                             break;
                     }
                     return result;
@@ -492,8 +492,8 @@ CKEDITOR.customprocessor.prototype =
         // transform only if
         // 1. there are no html attributes in data string starting with "_fck" or "_cke"
         // 2. the data string doesn't start with "<p>"
-        // 3. the data string doesn't contain html tags except for <span|div|br|p|sup|ul|ol|li|u|nowiki|includeonly|noinclude|onlyinclude|galery> (those are also used in wikitext-html) 
-        var dataWithTags = data.replace(/<\/?(?:span|div|br|p|sup|ul|ol|li|u|nowiki|includeonly|noinclude|onlyinclude|galery|rule)[^\/>]*\/?>/ig, '');
+        // 3. the data string doesn't contain html tags except for <span|div|br|p|sup|ul|ol|li|u|big|nowiki|includeonly|noinclude|onlyinclude|galery> (those are also used in wikitext-html) 
+        var dataWithTags = data.replace(/<\/?(?:span|div|br|p|sup|ul|ol|li|u|big|nowiki|includeonly|noinclude|onlyinclude|galery|rule)[^\/>]*\/?>/ig, '');
         var dataWithoutTags = dataWithTags.replace(/<\/?\w+(?:(?:\s+[\w@\-]+(?:\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/ig, '');
         if (data.indexOf('<p>') != 0 && !data.match(/<.*?(?:_fck|_cke)/) && dataWithoutTags.length === dataWithTags.length) {
             data = CKEDITOR.ajax.loadHalo('wfSajaxWikiToHTML', [data, window.parent.wgPageName]);          
@@ -529,7 +529,7 @@ CKEDITOR.customprocessor.prototype =
         
         if (CKEDITOR.env.ie) {
             data = this.ieFixHTML(data);
-        }       
+        }  
 //        data = '<body xmlns:x="http://excel">' + data.htmlEntities()+ '</body>';
         data = '<body xmlns:x="http://excel">' + data + '</body>';
         // fix <img> tags
@@ -552,9 +552,8 @@ CKEDITOR.customprocessor.prototype =
         data = data.replace(/<col[^>]*>/gi, '' );
         
         //fix for invalid entity error in XML parser
-        data = data.replace(/&nbsp;/gi, '&#xA0;');
+        data = data.replace(/&nbsp;/gi, '&#xA0;');       
 	
-        	
         var rootNode = this._getNodeFromHtml( data );
         // rootNode is <body>.
         // Normalize the document for text node processing (except IE - #1586).
@@ -581,10 +580,10 @@ CKEDITOR.customprocessor.prototype =
             xmlDoc.async="false";
             xmlDoc.loadXML(data);
             
-            //Xml validation. Uncomment and change to true for debugging purposes
+            //IE xml validation. Uncomment for debugging purposes
             xmlDoc.validateOnParse = true;
             if (xmlDoc.parseError.errorCode != 0) {
-                alert(xmlDoc.parseError.reason + ':\n' + xmlDoc.xml);
+                alert(xmlDoc.parseError.errorCode + ':  ' + xmlDoc.parseError.reason + '\nOn line: ' + xmlDoc.parseError.line + '\n-----------\n' + data);
             }  
         }       
         
@@ -1130,14 +1129,29 @@ CKEDITOR.customprocessor.prototype =
 
                                     case 'fck_mw_template' :
                                     case 'fck_smw_query' :
-                                        var inner= this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n');
+                                        var inner= this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/gi,'\r\n');
                                         if (inner == '{{!}}')
                                             stringBuilder.push( '\n' );
                                         stringBuilder.push( inner );
                                         return;
                                     case 'fck_smw_webservice' :
                                     case 'fck_smw_rule' :
-                                        stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n') );
+                                        stringBuilder.push('<rule');
+                                        var ruleName = htmlNode.getAttribute('name');
+                                        if(ruleName)
+                                            stringBuilder.push(' name="' + ruleName.htmlDecode() + '"');
+                                        var ruleType = htmlNode.getAttribute('type');
+                                        if(ruleType)
+                                            stringBuilder.push(' type="' + ruleType.htmlDecode() + '"');
+                                        var ruleFormula = htmlNode.getAttribute('formula');
+                                        if(ruleFormula)
+                                            stringBuilder.push(' formula="' + ruleFormula.htmlDecode() + '"');
+                                        var variableSpec = htmlNode.getAttribute('variablespec');
+                                        if(variableSpec)
+                                            stringBuilder.push(' variablespec="' + variableSpec.htmlDecode() + '"');
+                                        stringBuilder.push('>');
+                                        stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/gi,'\r\n') );
+                                        stringBuilder.push('</rule>');
                                         return;
                                     case 'fck_mw_magic' :
                                         var magicWord = htmlNode.getAttribute( '_fck_mw_tagname' ) || '';
@@ -1489,6 +1503,12 @@ CKEDITOR.customprocessor.prototype =
             var attributes = element.attributes;
             var realHtml = attributes && attributes.getNamedItem('data-cke-realelement');
             var realNode = realHtml && decodeURIComponent( realHtml.nodeValue );
+            
+            //IE creates invalid html, so we have to fix it before attempting to load it into xml dom
+            if (CKEDITOR.env.ie) {
+                realNode = this.ieFixHTML(realNode);
+            }  
+            
             var realElement = realNode && this._getNodeFromHtml( realNode );
 
             // If we have width/height in the element, we must move it into
