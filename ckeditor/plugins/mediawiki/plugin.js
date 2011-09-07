@@ -442,7 +442,52 @@ CKEDITOR.plugins.add( 'mediawiki',
                     
             }
                 	   
-        })
+        });
+        
+        var createXMLHttpRequest = function()
+	{
+		// In IE, using the native XMLHttpRequest for local files may throw
+		// "Access is Denied" errors.
+		if ( !CKEDITOR.env.ie || location.protocol != 'file:' )
+			try { return new XMLHttpRequest(); } catch(e) {}
+
+		try { return new ActiveXObject( 'Msxml2.XMLHTTP' ); } catch (e) {}
+		try { return new ActiveXObject( 'Microsoft.XMLHTTP' ); } catch (e) {}
+
+		return null;
+	};
+        
+        
+//override the ckeditor ajax call method with one which does POST requests        
+CKEDITOR.ajax.loadPost = function( url, params, callback )
+    {
+            var async = !!callback;
+
+            var xhr = createXMLHttpRequest();
+
+            if ( !xhr )
+                    return null;
+
+            xhr.open( 'POST', url, async );
+
+            if ( async )
+            {
+                    // TODO: perform leak checks on this closure.
+                    /** @ignore */
+                    xhr.onreadystatechange = function()
+                    {
+                            if ( xhr.readyState == 4 )
+                            {
+                                    callback( xhr.responseText );
+                                    xhr = null;
+                            }
+                    };
+            }
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+            xhr.send(params);
+
+            return async ? '' : xhr.responseText;
+    };
         
 //add method loadXmlHalo to CKEDITOR.ajax for calling server side funcrions over ajax
 //   func_name - the name of the server side function to call. Must be registered in $wgAjaxExportList
@@ -452,13 +497,12 @@ CKEDITOR.plugins.add( 'mediawiki',
 CKEDITOR.ajax.loadHalo = function(func_name, args, target){
     //build url
     var uri = wgServer + wgScriptPath + "/index.php?action=ajax";
-    uri += '&rs=' + encodeURIComponent(func_name);
+    var params = '&rs=' + encodeURIComponent(func_name);
     for(i = 0; i < args.length; i++){
-        uri += '&rsargs[]=' + encodeURIComponent(args[i]);
-    }
-    
-    //call CKEDITOR.loadXml
-    return CKEDITOR.ajax.load(uri, target);
+        params += '&rsargs[]=' + encodeURIComponent(args[i]);
+    }    
+
+    return CKEDITOR.ajax.loadPost(uri, params, target);
 };
 
  }
@@ -475,35 +519,8 @@ CKEDITOR.customprocessor = function( editor )
 CKEDITOR.customprocessor.prototype =
 {
     _inPre : false,
-    _inLSpace : false,
-    
-    wikitextHtmlTags: [
-        'abbr',
-        'b',
-        'blockquote',
-        'table',
-        'center',
-        'cite',
-        'code',
-        'dd',
-        
-        'span',
-        'div',
-        'br', 
-        'p', 
-        'sup',
-        'ul',
-        'ol',
-        'li',
-        'u',
-        'big',
-        'nowiki',
-        'includeonly',
-        'noinclude',
-        'onlyinclude',
-        'galery',
-        'rule'
-    ],
+    _inLSpace : false,   
+  
 
     toHtml : function( data, fixForBody )
     {
