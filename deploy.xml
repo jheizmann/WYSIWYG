@@ -3,7 +3,7 @@
 	<global>
 		<version>156</version>
 		<id>wysiwyg</id>
-		<patchlevel>5</patchlevel>
+		<patchlevel>6</patchlevel>
 		<license>GPL-v2</license>
 		<vendor>ontoprise GmbH</vendor>
 		<maintainer>ontoprise GmbH</maintainer>

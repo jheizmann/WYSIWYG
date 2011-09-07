@@ -476,6 +476,34 @@ CKEDITOR.customprocessor.prototype =
 {
     _inPre : false,
     _inLSpace : false,
+    
+    wikitextHtmlTags: [
+        'abbr',
+        'b',
+        'blockquote',
+        'table',
+        'center',
+        'cite',
+        'code',
+        'dd',
+        
+        'span',
+        'div',
+        'br', 
+        'p', 
+        'sup',
+        'ul',
+        'ol',
+        'li',
+        'u',
+        'big',
+        'nowiki',
+        'includeonly',
+        'noinclude',
+        'onlyinclude',
+        'galery',
+        'rule'
+    ],
 
     toHtml : function( data, fixForBody )
     {
@@ -493,7 +521,7 @@ CKEDITOR.customprocessor.prototype =
         // 1. there are no html attributes in data string starting with "_fck" or "_cke"
         // 2. the data string doesn't start with "<p>"
         // 3. the data string doesn't contain html tags except for <span|div|br|p|sup|ul|ol|li|u|big|nowiki|includeonly|noinclude|onlyinclude|galery> (those are also used in wikitext-html) 
-        var dataWithTags = data.replace(/<\/?(?:span|div|br|p|sup|ul|ol|li|u|big|nowiki|includeonly|noinclude|onlyinclude|galery|rule)[^\/>]*\/?>/ig, '');
+        var dataWithTags = data.replace(/<\/?(?:span|div|br|p|sup|sub|ul|ol|li|u|big|nowiki|includeonly|noinclude|onlyinclude|galery|rule)[^\/>]*\/?>/ig, '');
         var dataWithoutTags = dataWithTags.replace(/<\/?\w+(?:(?:\s+[\w@\-]+(?:\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/ig, '');
         if (data.indexOf('<p>') != 0 && !data.match(/<.*?(?:_fck|_cke)/) && dataWithoutTags.length === dataWithTags.length) {
             data = CKEDITOR.ajax.loadHalo('wfSajaxWikiToHTML', [data, window.parent.wgPageName]);          
