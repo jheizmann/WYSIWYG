@@ -751,8 +751,8 @@ class CKeditorParser extends CKeditorParserWrapper {
 			$text = strtr( $parserOutput->getText(), $this->fck_mw_strtr_span );
 			$parserOutput->setText( strtr( $text, $this->fck_mw_strtr_span ) );
                         
-                        //bug fix for Issue 15470: replace fckLR strings with <br/> tags
-                        $parserOutput->setText( strtr( $parserOutput->getText(), array('fckLR' => '<br fcklr="true"/>') ) );
+                        //replace fckLR strings with empty strings
+                        $parserOutput->setText( strtr( $parserOutput->getText(), array('fckLR' => '') ) );
 		}
         
         // there were properties, look for the placeholder FCK_PROPERTY_X_FOUND and replace
