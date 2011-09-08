@@ -541,7 +541,7 @@ CKEDITOR.customprocessor.prototype =
         var dataWithTags = data.replace(/<\/?(?:span|div|br|p|sup|sub|ul|ol|li|u|big|nowiki|includeonly|noinclude|onlyinclude|galery|rule)[^\/>]*\/?>/ig, '');
         var dataWithoutTags = dataWithTags.replace(/<\/?\w+(?:(?:\s+[\w@\-]+(?:\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/ig, '');
         if (data.indexOf('<p>') != 0 && !data.match(/<.*?(?:_fck|_cke)/) && dataWithoutTags.length === dataWithTags.length) {
-            data = CKEDITOR.ajax.loadHalo('wfSajaxWikiToHTML', [data, window.parent.wgPageName]);          
+            data = CKEDITOR.ajax.loadHalo('wfSajaxWikiToHTML', [data, window.parent.wgPageName]);   
         }
         var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
         writer = new CKEDITOR.htmlParser.basicWriter();
@@ -1180,6 +1180,8 @@ CKEDITOR.customprocessor.prototype =
                                         stringBuilder.push( inner );
                                         return;
                                     case 'fck_smw_webservice' :
+                                        stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n') );
+                                        return;
                                     case 'fck_smw_rule' :
                                         stringBuilder.push('<rule');
                                         var ruleName = htmlNode.getAttribute('name');
