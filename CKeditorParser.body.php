@@ -750,6 +750,9 @@ class CKeditorParser extends CKeditorParserWrapper {
 			}
 			$text = strtr( $parserOutput->getText(), $this->fck_mw_strtr_span );
 			$parserOutput->setText( strtr( $text, $this->fck_mw_strtr_span ) );
+                        
+                        //replace fckLR strings with empty strings
+                        $parserOutput->setText( strtr( $parserOutput->getText(), array('fckLR' => '') ) );
 		}
         
         // there were properties, look for the placeholder FCK_PROPERTY_X_FOUND and replace
@@ -1161,19 +1164,33 @@ class CKeditorParser extends CKeditorParserWrapper {
 	    if (($wgRequest->getVal('action') == 'ajax') ||
 	        ($wgTitle && (defined('SMW_NS_PROPERTY') && $wgTitle->getNamespace() == SMW_NS_PROPERTY) ||
              $wgTitle->getNamespace() == NS_CATEGORY )) {
-         */
+         */  
 	        if (preg_match_all('/<rule[^>]*>.*?<\/rule>/is', $text, $matches)) {
 	             for ($i= 0; $i<count($matches[0]); $i++) {
-	                 $this->fck_mw_strtr_span['Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw']=
-	                     '<span class="fck_smw_rule">'.htmlentities($matches[0][$i]).'</span>';
-	                 $this->fck_mw_strtr_span['href="Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw"']=
-	                     'href="'.$matches[0][$i].'"';
-                     $key = 'Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw';
-                     $this->fck_mw_strtr_span_counter++;
-                     $cnt=1;
-	                 $text = str_replace($matches[0][$i], $key, $text, $cnt);
+                         preg_match_all('/<rule\s*(?:name=\"([\w\-\#;]+)\"\s*)?(?:type=\"([\w\-\#;]+)\"\s*)?(?:formula=\"([\w\-\#;]+)\"\s*)?(?:variableSpec=\"([\w\-\#;]+)\"\s*)?[^(?<!\-)>]*>(.*?)<\/rule>/is', 
+                                 $matches[0][$i], $ruleContent);
+                         if(count($ruleContent) > 1){
+                             $name = count($ruleContent[1]) ? htmlentities($ruleContent[1][0]) : null;
+                             $type = count($ruleContent[2]) ? htmlentities($ruleContent[2][0]) : null;
+                             $formula = count($ruleContent[3]) ? htmlentities($ruleContent[3][0]) : null;
+                             $variableSpec = count($ruleContent[4]) ? htmlentities($ruleContent[4][0]) : null;
+                             $rule = count($ruleContent[5]) ? htmlentities($ruleContent[5][0]) : null;
+                             $this->fck_mw_strtr_span['Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw']=
+                                 '<span class="fck_smw_rule"' . 
+                                     ' name="'.$name.'"' .
+                                     ' type="'.$type.'"' . 
+                                     ' formula="'.$formula.'"' . 
+                                     ' variablespec="'.$variableSpec.'">'. 
+                                        $rule.'</span>';
+                             $this->fck_mw_strtr_span['href="Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw"']=
+                                 'href="'.$rule.'"';
+                             $key = 'Fckmw'.$this->fck_mw_strtr_span_counter.'fckmw';
+                             $this->fck_mw_strtr_span_counter++;
+                             $cnt=1;
+                             $text = str_replace($matches[0][$i], $key, $text, $cnt);
 	             }
-	        }
+                    }
+                }
         /*
 	    }
          */

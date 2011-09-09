@@ -1044,13 +1044,6 @@ CKEDITOR.plugins.smwtoolbar = {
         window.parent.smwhg_dragresizetoolbar.callme();
         this.SetEventHandler4AnnotationBox( editor );
         editor.getCommand('SMWtoolbar').setState(CKEDITOR.TRISTATE_ON);
-		// Set the z-index of the semantic toolbar
-        var ontomenu = window.parent.document.getElementById('ontomenuanchor');
-        ontomenu.style.zIndex = editor.config.baseFloatZIndex + 10;
-        var acFloater = window.parent.document.getElementById('smartInputFloater');
-        acFloater.style.zIndex = editor.config.baseFloatZIndex + 2000;
-        acFloater.style.right = '0px';
-		
     },
     DisableAnnotationToolbar: function( editor ) {
         this.stbIsActive = false;
@@ -1201,15 +1194,7 @@ CKEDITOR.plugins.add('smwtoolbar', {
 
 					exec: function( editor )
 					{
-						var propertyAttr = editPropertyCommmand.element.getAttribute('property');
-						var displayedText = editPropertyCommmand.element.getText();
-						var classAttr = editPropertyCommmand.element.getAttribute('class');
-						
-//						removePropertyCommmand.element.getParent().replaceChild(document.createTextNode(displayedText), editPropertyCommmand.element)
-						var jQueryLocator = 'span:contains(\'' + displayedText + '\')[class=\'' + classAttr + '\'][property=\'' + propertyAttr + '\']'; 
-						jQuery('iframe').contents().find(jQueryLocator).filter(function(){
-							return jQuery(this).text() == displayedText;
-						}).replaceWith(displayedText);
+						editPropertyCommmand.element.remove();
 					}
 			};
 			
@@ -1222,10 +1207,7 @@ CKEDITOR.plugins.add('smwtoolbar', {
 
 					exec: function( editor )
 					{
-						var sortAttr = editCategoryCommmand.element.getAttribute('sort');
-						var classAttr = editCategoryCommmand.element.getAttribute('class');
-						var jQueryLocator = '.' + classAttr + '[sort=' + sortAttr + ']'; 
-						jQuery('iframe').contents().find(jQueryLocator).remove();
+						editCategoryCommmand.element.remove();
 					}
 			};
 			editor.addCommand( 'editProperty', editPropertyCommmand);
@@ -1286,7 +1268,7 @@ CKEDITOR.plugins.add('smwtoolbar', {
                 {
                     label : 'Semantic Toolbar',
                     command : 'SMWtoolbar',
-                    icon: this.path + 'images/tb_icon_semtoolbar.png',
+                    icon: this.path + 'images/tb_icon_semtoolbar.gif',
                     title: 'Semantic Toolbar'
                 });
             editor.getCommand('SMWtoolbar').setState(CKEDITOR.TRISTATE_OFF);
@@ -1362,7 +1344,7 @@ CKEDITOR.plugins.add( 'smwtoolbar',
 				label : 'Semantic Toolbar',
                 title : 'Semantic Toolbar',
 				command : 'SMWtoolbar',
-                icon: this.path + 'images/tb_icon_semtoolbar.png'
+                icon: this.path + 'images/tb_icon_semtoolbar.gif'
 			});
 
 		CKEDITOR.dialog.add( 'SMWtoolbar', this.path + 'dialogs/teaser.js' );

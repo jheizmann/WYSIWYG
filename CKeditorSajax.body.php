@@ -117,11 +117,11 @@ function wfSajaxSearchImageCKeditor( $term ) {
 function wfSajaxSearchArticleCKeditor( $term ) {
 	global $wgContLang, $wgExtraNamespaces;
 	$limit = 30;
-	$ns = array(NS_MAIN, NS_CATEGORY, NS_IMAGE, NS_TEMPLATE, NS_USER);
+	$ns = array(NS_MAIN, NS_CATEGORY, NS_IMAGE, NS_TEMPLATE, NS_USER, NS_FILE);
     if (defined(SF_NS_FORM)) $ns[]= SF_NS_FORM;
     if (defined(SMW_NS_PROPERTY)) $ns[]= SMW_NS_PROPERTY;
 
-	$term = $wgContLang->checkTitleEncoding( $wgContLang->recodeInput( js_unescape( $term ) ) );
+    $term = $wgContLang->checkTitleEncoding( $wgContLang->recodeInput( js_unescape( $term ) ) );
     $prefix = "";
 
     if ( $term[0] == ':' ) {
@@ -182,9 +182,9 @@ function wfSajaxSearchArticleCKeditor( $term ) {
 	$i = 0;
 	while ( ( $row = $dbr->fetchObject( $res ) ) && ( ++$i <= $limit ) ) {
         $title = '';
-		if( isset( $prefix ) && !is_null( $prefix ) ) {
-			$title .= $prefix;
-		}
+	if( isset( $prefix ) && !empty( $prefix ) ) {
+            $title .= $prefix;
+        }
         else if ($row->page_namespace != NS_MAIN) {
             $title .= MWNamespace::getCanonicalName($row->page_namespace).':';
         }

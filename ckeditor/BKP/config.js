@@ -20,8 +20,8 @@ CKEDITOR.editorConfig = function( config )
 	// config.uiColor = '#AADC6E';
     var showTbButton = (typeof window.parent.wgCKEditorHideDisabledTbutton == 'undefined');
     
-    CKEDITOR.plugins.addExternal( 'mediawiki', CKEDITOR.basePath + 'plugins/mediawiki/' );
-    CKEDITOR.plugins.addExternal( 'mwtemplate', CKEDITOR.basePath + 'plugins/mwtemplate/' );
+//    CKEDITOR.plugins.addExternal( 'mediawiki', CKEDITOR.basePath + 'plugins/mediawiki/' );
+//    CKEDITOR.plugins.addExternal( 'mwtemplate', CKEDITOR.basePath + 'plugins/mwtemplate/' );
     
     // Remove the link plugin because it's replaced with the mediawiki plugin
     //CKEDITOR.config.plugins = CKEDITOR.config.plugins.replace( /(?:^|,)link(?=,|$)/, '' );
@@ -92,7 +92,7 @@ CKEDITOR.editorConfig = function( config )
         
     //remove unnecessary plugins
     //list style is not preserved in wikitext
-    config.removePlugins = 'liststyle';
+    config.removePlugins = 'liststyle', 'filebrowser';
     
     //don't remove empty format elements when loading HTML
     CKEDITOR.dtd.$removeEmpty['span'] = 0
