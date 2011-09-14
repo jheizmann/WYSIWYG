@@ -538,10 +538,10 @@ CKEDITOR.customprocessor.prototype =
         // 1. there are no html attributes in data string starting with "_fck" or "_cke"
         // 2. the data string doesn't start with "<p>"
         // 3. the data string doesn't contain html tags except for <span|div|br|p|sup|ul|ol|li|u|big|nowiki|includeonly|noinclude|onlyinclude|galery> (those are also used in wikitext-html) 
-        var dataWithTags = data.replace(/<\/?(?:span|div|br|p|sup|sub|ul|ol|li|u|big|nowiki|includeonly|noinclude|onlyinclude|galery|rule)[^\/>]*\/?>/ig, '');
+        var dataWithTags = data.replace(/<\/?(?:span|div|br|p|sup|sub|ul|ol|li|u|big|nowiki|includeonly|noinclude|onlyinclude|galery|rule|webservice|uri|protocol|method|parameter|result|part|once|queryPolicy|delay|spanOfLife)[^>]*\s*\/?>/ig, '');
         var dataWithoutTags = dataWithTags.replace(/<\/?\w+(?:(?:\s+[\w@\-]+(?:\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/ig, '');
         if (data.indexOf('<p>') != 0 && !data.match(/<.*?(?:_fck|_cke)/) && dataWithoutTags.length === dataWithTags.length) {
-            data = CKEDITOR.ajax.loadHalo('wfSajaxWikiToHTML', [data, window.parent.wgPageName]);          
+            data = CKEDITOR.ajax.loadHalo('wfSajaxWikiToHTML', [data, window.parent.wgPageName]);   
         }
         var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
         writer = new CKEDITOR.htmlParser.basicWriter();
@@ -593,8 +593,8 @@ CKEDITOR.customprocessor.prototype =
 
         data = data.replace(/alt=([^\"\'\s].*?)(?=[\s*|>])/gi, 'alt="$1" ');
        
-        // when inserting data with Excel an unmatched <col> element exists, thus remove it
-        data = data.replace(/<col[^>]*>/gi, '' );
+        // when inserting data from Excel a mismatched <col> or <colgroup> element exists -so  just remove it
+        data = data.replace(/<\/?col|colgroup[^>]*>/gi, '' );
         
         //fix for invalid entity error in XML parser
         data = data.replace(/&nbsp;/gi, '&#xA0;');       
@@ -1180,6 +1180,8 @@ CKEDITOR.customprocessor.prototype =
                                         stringBuilder.push( inner );
                                         return;
                                     case 'fck_smw_webservice' :
+                                        stringBuilder.push( this._GetNodeText(htmlNode).htmlDecode().replace(/fckLR/g,'\r\n') );
+                                        return;
                                     case 'fck_smw_rule' :
                                         stringBuilder.push('<rule');
                                         var ruleName = htmlNode.getAttribute('name');
