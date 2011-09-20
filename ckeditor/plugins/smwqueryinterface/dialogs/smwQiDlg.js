@@ -1,6 +1,8 @@
 CKEDITOR.dialog.add( 'SMWqi', function( editor ) {
     var wgScript = window.parent.wgScript;
-    var locationQi =  wgScript + window.parent.smwghQiLoadUrl;
+    //Workaround for issue 15679. smwghQiLoadUrl var is not initialized when action = formedit
+    var qiUrl = window.parent.smwghQiLoadUrl || '?action=ajax&rs=smwf_qi_getPage&rsargs[]=CKE';
+    var locationQi =  wgScript + qiUrl;
     var querySource;
 	var height = (window.outerHeight == undefined) ? 400 : parseInt(window.outerHeight * 0.6);
 	var language = editor.lang;
