@@ -154,29 +154,35 @@ CKEDITOR.plugins.add( 'mediawiki',
             'span.fck_mw_noinclude' +
             '{' +
                 'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_noinclude.gif' ) + ');' +
-                'background-position: 0 center;' +
+                'background-position: center center;' +
                 'background-repeat: no-repeat;' +
                 'background-color: #FFF799;' +
                 'border: 1px solid #a9a9a9;' +
-                'padding-left: 70px;' +
+                'width: 66px !important;' +
+                'height: 15px !important;' +
+                'display: block' + 
             '}\n' +
             'span.fck_mw_onlyinclude' +
             '{' +
                 'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_onlyinclude.gif' ) + ');' +
-                'background-position: 0 center;' +
+                'background-position: center center;' +
                 'background-repeat: no-repeat;' +
                 'background-color: #FFF799;' +
                 'border: 1px solid #a9a9a9;' +
-                'padding-left: 70px;' +
+                'width: 66px !important;' +
+                'height: 15px !important;' +
+                'display: block' +
             '}\n' +
             'span.fck_mw_includeonly' +
             '{' +
                 'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/icon_includeonly.gif' ) + ');' +
-                'background-position: 0 center;' +
+                'background-position: center center;' +
                 'background-repeat: no-repeat;' +
                 'background-color: #FFF799;' +
                 'border: 1px solid #a9a9a9;' +
-                'padding-left: 70px;' +
+                'width: 66px !important;' +
+                'height: 15px !important;' +
+                'display: block' +
             '}\n'
                     
             );
@@ -242,6 +248,7 @@ CKEDITOR.plugins.add( 'mediawiki',
                             result = editor.createFakeParserElement( element, className, 'span' );
                             break;
                         default:
+                            result = element
                             break;
                     }
                     return result;
@@ -395,9 +402,9 @@ CKEDITOR.plugins.add( 'mediawiki',
                         'FCK__MWSpecial',
                         'FCK__MWMagicWord',
                         'FCK__MWNowiki',
-                        'FCK__MWIncludeonly',
-                        'FCK__MWNoinclude',
-                        'FCK__MWOnlyinclude'
+//                        'FCK__MWIncludeonly',
+//                        'FCK__MWNoinclude',
+//                        'FCK__MWOnlyinclude'
                         ])
                         ) return {
                         MWSpecialTags: CKEDITOR.TRISTATE_ON
@@ -429,12 +436,12 @@ CKEDITOR.plugins.add( 'mediawiki',
                     'FCK__MWSpecial',
                     'FCK__MWMagicWord',
                     'FCK__MWNowiki',
-                    'FCK__MWIncludeonly',
-                    'FCK__MWNoinclude',
-                    'FCK__MWOnlyinclude',
-                    'fck_mw_noinclude',
-                    'fck_mw_onlyinclude',
-                    'fck_mw_includeonly'
+//                    'FCK__MWIncludeonly',
+//                    'FCK__MWNoinclude',
+//                    'FCK__MWOnlyinclude',
+//                    'fck_mw_noinclude',
+//                    'fck_mw_onlyinclude',
+//                    'fck_mw_includeonly'
                     ])
                     )
             {
@@ -524,14 +531,6 @@ CKEDITOR.customprocessor.prototype =
 
     toHtml : function( data, fixForBody )
     {
-        // Hide the textarea to avoid seeing the code change.
-        //textarea.hide();
-        var loading = document.createElement( 'span' );
-        loading.innerHTML = '&nbsp;'+ 'Loading Wikitext. Please wait...' + '&nbsp;';
-        loading.style.position = 'absolute';
-        loading.style.left = '5px';
-        //textarea.parentNode.appendChild( loading, textarea );
-
         // prevent double transformation because of some weird runtime issues
         // with the event dataReady in the smwtoolbar plugin
         // transform only if
@@ -541,8 +540,13 @@ CKEDITOR.customprocessor.prototype =
         var dataWithTags = data.replace(/<\/?(?:span|div|br|p|sup|sub|ul|ol|li|u|big|nowiki|includeonly|noinclude|onlyinclude|galery|rule|webservice|uri|protocol|method|parameter|result|part|once|queryPolicy|delay|spanOfLife)[^>]*\s*\/?>/ig, '');
         var dataWithoutTags = dataWithTags.replace(/<\/?\w+(?:(?:\s+[\w@\-]+(?:\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?>/ig, '');
         if (data.indexOf('<p>') != 0 && !data.match(/<.*?(?:_fck|_cke)/) && dataWithoutTags.length === dataWithTags.length) {
-            data = CKEDITOR.ajax.loadHalo('wfSajaxWikiToHTML', [data, window.parent.wgPageName]);   
+            data = CKEDITOR.ajax.loadHalo('wfSajaxWikiToHTML', [data, window.parent.wgPageName]);
         }
+        //replace only "fcklr" which are not preceded by "<br "
+        data = data.replace(/(\<br\s+)?fckLR/gi, function($0, $1){
+          return $1 ? $0 : '<br fckLR="true">';
+        });
+        
         var fragment = CKEDITOR.htmlParser.fragment.fromHtml( data, fixForBody ),
         writer = new CKEDITOR.htmlParser.basicWriter();
 
@@ -550,7 +554,7 @@ CKEDITOR.customprocessor.prototype =
         data = writer.getHtml( true );
        
         return data;
-     },
+     }, 
 
     /*
 	 * Converts a DOM (sub-)tree to a string in the data format.
@@ -597,7 +601,7 @@ CKEDITOR.customprocessor.prototype =
         data = data.replace(/<\/?col|colgroup[^>]*>/gi, '' );
         
         //fix for invalid entity error in XML parser
-        data = data.replace(/&nbsp;/gi, '&#xA0;');       
+        data = data.replace(/&nbsp;/gi, '&#xA0;');
 	
         var rootNode = this._getNodeFromHtml( data );
         // rootNode is <body>.
@@ -1249,21 +1253,23 @@ CKEDITOR.customprocessor.prototype =
                                         sNodeName = 'html';
                                         break;
 
-                                    case 'fck_mw_includeonly' :
-                                        sNodeName = 'includeonly';
-                                        break;
-
-                                    case 'fck_mw_noinclude' :
-                                        sNodeName = 'noinclude';
-                                        break;
+                                    case 'fck_mw_includeonly' :                                     
+                                    case 'fck_mw_noinclude' :                                    
+                                    case 'fck_mw_onlyinclude' :
+                                        sNodeName = htmlNode.getAttribute( '_fck_mw_tagname' );                                    
+                                        if(htmlNode.getAttribute( 'starttag' )){
+                                          stringBuilder.push('<' + sNodeName + '>');
+                                        }
+                                        else if(htmlNode.getAttribute( 'endtag' )){
+                                          stringBuilder.push('</' + sNodeName + '>');
+                                        }
+                                        return;                        
 
                                     case 'fck_mw_gallery' :
                                         sNodeName = 'gallery';
                                         break;
 
-                                    case 'fck_mw_onlyinclude' :
-                                        sNodeName = 'onlyinclude';
-                                        break;
+                                   
                                     case 'fck_mw_property' :
                                     case 'fck_mw_category' :
                                         stringBuilder.push( this._formatSemanticValues( htmlNode ) ) ;
@@ -1271,7 +1277,7 @@ CKEDITOR.customprocessor.prototype =
                                 }
 
                                 // Change the node name and fell in the "default" case.
-                                if ( htmlNode.getAttribute( '_fck_mw_customtag' ) )
+                                if (!sNodeName && htmlNode.getAttribute( '_fck_mw_customtag' ) )
                                     sNodeName = htmlNode.getAttribute( '_fck_mw_tagname' );
                                 this._AppendTextNode( htmlNode, stringBuilder, sNodeName, prefix )
                                 break;
