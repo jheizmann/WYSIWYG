@@ -80,7 +80,6 @@ CKEDITOR.editorConfig = function( config )
     ];
     config.extraPlugins = extraPlugins;
     config.height = '26em';
-    config.resize_dir = 'vertical';
     config.language = window.parent.wgUserLanguage || 'en';
 
     config.WikiSignature = '--~~~~';
@@ -92,7 +91,7 @@ CKEDITOR.editorConfig = function( config )
         
     //remove unnecessary plugins
     //list style is not preserved in wikitext
-    config.removePlugins = 'liststyle';
+    config.removePlugins = 'liststyle', 'filebrowser';
     
     //don't remove empty format elements when loading HTML
     CKEDITOR.dtd.$removeEmpty['span'] = 0
