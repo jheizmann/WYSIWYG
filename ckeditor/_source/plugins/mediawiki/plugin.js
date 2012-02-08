@@ -71,8 +71,8 @@ CKEDITOR.plugins.add( 'mediawiki',
             'img.fck_mw_border' +
             '{' +
                 'border: 1px solid #dddddd;' +
-            '}\n'
-            );
+            '}\n');
+			
         // Add the CSS styles for special wiki placeholders.
         editor.addCss(
             'img.FCK__MWRef' +
@@ -206,9 +206,7 @@ CKEDITOR.plugins.add( 'mediawiki',
                 'width: 66px !important;' +
                 'height: 15px !important;' +
                 'display: block' +
-            '}\n'
-                    
-            );
+            '}\n');
         var wikiFilterRules =
         {
             elements :
@@ -451,9 +449,10 @@ CKEDITOR.plugins.add( 'mediawiki',
 //                        'FCK__MWNoinclude',
 //                        'FCK__MWOnlyinclude'
                         ])
-                        ) return {
-                        MWSpecialTags: CKEDITOR.TRISTATE_ON
-                    };
+                        ) 
+				{
+						return { MWSpecialTags: CKEDITOR.TRISTATE_ON };
+				}
             });
         }
         
@@ -492,8 +491,7 @@ CKEDITOR.plugins.add( 'mediawiki',
             {
                     evt.data.dialog = 'MWSpecialTags';	
                     
-            }
-                	   
+            }                	   
         });
         
         var createXMLHttpRequest = function()
@@ -501,10 +499,10 @@ CKEDITOR.plugins.add( 'mediawiki',
 		// In IE, using the native XMLHttpRequest for local files may throw
 		// "Access is Denied" errors.
 		if ( !CKEDITOR.env.ie || location.protocol != 'file:' )
-			try { return new XMLHttpRequest(); } catch(e) {}
+			try {return new XMLHttpRequest();} catch(e) {}
 
-		try { return new ActiveXObject( 'Msxml2.XMLHTTP' ); } catch (e) {}
-		try { return new ActiveXObject( 'Microsoft.XMLHTTP' ); } catch (e) {}
+		try {return new ActiveXObject( 'Msxml2.XMLHTTP' );} catch (e) {}
+		try {return new ActiveXObject( 'Microsoft.XMLHTTP' );} catch (e) {}
 
 		return null;
 	};
@@ -603,13 +601,9 @@ CKEDITOR.customprocessor.prototype =
      },
 
      getInterwikiLink: function(htmlNode){
-		var title = htmlNode.getAttribute('title');
-		var representation = this._GetNodeText(htmlNode);
-		if (representation.length > 0) {
-			representation = '|' + representation;
-		}
-		var link = '[[' + title + representation + ']]';		
-		return link;
+      var href = htmlNode.getAttribute('href');
+      var representation = this._GetNodeText(htmlNode);      
+      return '[' + href + ' ' + representation + ']';
      },
 
     /*
@@ -716,6 +710,55 @@ CKEDITOR.customprocessor.prototype =
         return rootNode;
     },
 
+    getLinkWikiMarkup: function(htmlNode){
+      // if there is no inner HTML in the Link, do not add it to the wikitext
+      var label = this._GetNodeText(htmlNode).Trim();
+      if (!label){
+        if(htmlNode.childNodes.length && htmlNode.childNodes[0].nodeName === 'img'){
+          label = htmlNode.childNodes[0].getAttribute('src');
+        }
+        if(!label){
+          return '';
+        }
+      }
+
+      //get link details
+      var href = htmlNode.getAttribute( '_cke_saved_href' ) || htmlNode.getAttribute('href');
+      href = decodeURIComponent(href).replace(/rtecolon/gi, ":").htmlDecode();
+      var hrefType = htmlNode.getAttribute( '_cke_mw_type' ) || htmlNode.getAttribute( '_fck_mw_type' );
+      var title = htmlNode.getAttribute('title') || '';
+      
+
+      //handle internal wiki links
+      if(hrefType){
+        title = title ? '|' + title : '';
+        return '[[' + hrefType.FirstToUpper() + ':' + href + title + ']]';
+      }
+
+      //handle interwiki links
+      if(htmlNode.getAttribute('class') == "extiw") {
+        //convert url back to interwiki link
+        return this.getInterwikiLink(htmlNode);
+      }
+      
+      else{
+        //handle external links
+        title = title || label;
+        title = (title === '[n]' ? '' : title);
+        var hrefTypeRegexp = new RegExp('^(' + mw.config.get('wgUrlProtocols') + ')[\\s\\S]+', 'i');
+        var matches = href.match(hrefTypeRegexp);
+        if(matches && matches.length){
+          title = (title ? ' ' + title : '');
+          return '[' + href + title + ']';
+        }
+        //the rest can be links to wiki pages
+        else{
+          title = (title ? '|' + title : '');
+          return '[[' + href + title + ']]';
+        }
+      }
+    },
+
     // Collection of element definitions:
     //		0 : Prefix
     //		1 : Suffix
@@ -779,7 +822,7 @@ CKEDITOR.customprocessor.prototype =
                 if ( sNodeName == "" || sNodeName.substring(0, 1) == '/' || sNodeName == "style")
                     return;
 
-                if ( sNodeName == 'br' && ( this._inPre || this._inLSpace ) ){
+                if ( sNodeName === 'br' && ( this._inPre || this._inLSpace ) ){
                     stringBuilder.push( "\n" );
                     if ( this._inLSpace )
                         stringBuilder.push( " " );
@@ -845,8 +888,8 @@ CKEDITOR.customprocessor.prototype =
                     if ( !basicElement[2] ){
                         this._AppendChildNodes( htmlNode, stringBuilder, prefix );
                         // only empty element inside, remove it to avoid quotes
-                        if ( ( stringBuilder.length == len || ( stringBuilder.length == len + 1 && !stringBuilder[len].length ) )
-                            && basicElement[0] && basicElement[0].charAt(0) == "'" ){
+                        if ( ( stringBuilder.length === len || ( stringBuilder.length == len + 1 && !stringBuilder[len].length ) )
+                            && basicElement[0] && basicElement[0].charAt(0) === "'" ){
                             stringBuilder.pop();
                             stringBuilder.pop();
                             return;
@@ -916,74 +959,10 @@ CKEDITOR.customprocessor.prototype =
                             break;
 
                         case 'a' :
-                            // if there is no inner HTML in the Link, do not add it to the wikitext
-                            if (! this._GetNodeText(htmlNode).Trim() ) break;
-                            
-                            var pipeline = true;
-                            // Get the actual Link href.
-                            var href = htmlNode.getAttribute( '_cke_saved_href' );
-                            var hrefType = htmlNode.getAttribute( '_cke_mw_type' ) || '';
-                            var testInner = this._GetNodeText(htmlNode) || '';
-                            
-                            // this is still the old style, thats used in the parser (should be fixed soon)
-                            if (!href) {
-                                href = htmlNode.getAttribute( '_fcksavedurl' );
-                                hrefType = htmlNode.getAttribute( '_fck_mw_type' ) || '';
-                            }
 
-                            if (!href) {
-                                href = htmlNode.getAttribute( 'href' ) || '';
-                            }
-							
-                            //fix: Issue 14792 - Link with anchor is changed
-                            //hrefType is a substring of href from the beginning until the colon. 
-                            //it consists only of alphanumeric chars and optional url encoded chars in the middle.
-                            var hrefTypeRegexp = /^(\w+(?:%\d{0,3})*\w*):/i;
-                            var matches = href.match(hrefTypeRegexp);
-                            if(hrefType == '' && matches) {
-                                hrefType = matches[1]; 
-                            }
-							
-                            var isWikiUrl = true;
+                          stringBuilder.push( this.getLinkWikiMarkup(htmlNode) );
 
-                            if (hrefType != "" &&
-								hrefType != "http" &&
-								hrefType != "https" &&
-								hrefType != "mailto" &&
-								!href.StartsWith(hrefType.FirstToUpper() + ':')) {
-								stringBuilder.push('[[' + hrefType.FirstToUpper() + ':');
-							} else if (htmlNode.getAttribute('class') == "extiw") {
-								//convert url back to interwiki link
-								stringBuilder.push(this.getInterwikiLink(htmlNode));
-							} else {
-								isWikiUrl = !(href.StartsWith('mailto:') || (/^\w+:\/\//.test(href)) || (/\{\{[^\}]*\}\}/.test(href)));
-								stringBuilder.push(isWikiUrl ? '[[' : '[');
-								// #2223
-								if (htmlNode.getAttribute('_fcknotitle') && htmlNode.getAttribute('_fcknotitle') == "true") {
-									var testHref = decodeURIComponent(htmlNode.getAttribute('href'));
-									testInner = this._GetNodeText(htmlNode) || '';
-									if (href.toLowerCase().StartsWith('category:')) 
-										testInner = 'Category:' + testInner;
-									if (testHref.toLowerCase().StartsWith('rtecolon')) 
-										testHref = testHref.replace(/rtecolon/, ":");
-									testInner = testInner.replace(/&amp;/, "&");
-									if (testInner == testHref) 
-										pipeline = false;
-								}
-								if (href.toLowerCase().StartsWith('rtecolon')) { // change 'rtecolon=' => ':' in links
-									stringBuilder.push(':');
-									href = href.substring(8);
-								}
-								if (isWikiUrl) 
-									href = decodeURIComponent(href);
-								stringBuilder.push(href);
-								var innerHTML = this._GetNodeText(htmlNode);
-								if (pipeline && innerHTML != '[n]' && (!isWikiUrl || href != innerHTML || !href.toLowerCase().StartsWith("category:"))) {
-									stringBuilder.push(isWikiUrl ? '|' : ' ');
-									this._AppendChildNodes(htmlNode, stringBuilder, prefix);
-								}
-								stringBuilder.push(isWikiUrl ? ']]' : ']');
-							}
+                            
                             break;
 
                             case 'dl' :
@@ -1107,7 +1086,7 @@ CKEDITOR.customprocessor.prototype =
                                         currentNode = currentNode.childNodes[0];
                                     } else {
                                         var nextNode = currentNode.nextSibling;
-                                        if (nextNode == null && level > 0) {
+                                        if (nextNode === null && level > 0) {
                                             while (level > 0) {
                                                 currentNode = currentNode.parentNode;
                                                 level--;
@@ -1473,6 +1452,9 @@ CKEDITOR.customprocessor.prototype =
 
                     stringBuilder.push( "-->" );
                     return;
+					
+				default:
+					return;
             }
         },
 
@@ -1561,12 +1543,7 @@ CKEDITOR.customprocessor.prototype =
         },
         // in FF htmlNode.textContent is set, while IE needs htmlNode.text;
         _GetNodeText : function( htmlNode ) {
-            var text = '';
-            if (CKEDITOR.env.ie)
-                text = htmlNode.text;
-            else
-                text = htmlNode.textContent;
-            return (typeof text == 'undefined') ? '' : text;
+            return htmlNode.text || htmlNode.textContent || '';
         },
 
         // Property and Category values must be of a certain format. Otherwise this will break
@@ -1611,6 +1588,9 @@ CKEDITOR.customprocessor.prototype =
                     }
                     if (emptyVal.exec(text)) return '';
                     return '[[' + labelCategory + ':' + text + ']]';
+				
+				default:
+					return '';
             }
         },
         // Get real element from a fake element.
