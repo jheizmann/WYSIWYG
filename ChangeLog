@@ -1,6 +1,11 @@
 WYSIWYG extension ChangeLog
 ===========================
 
+VERSION 1.6 patchlevel 4
+
+	FEATURES:
+		15965 - Include a P and C icon into WYSIWYG toolset
+
 VERSION 1.6 patchlevel 1
   Bugfixes:
 	14486 - WYSIWYG doesn't show up in form

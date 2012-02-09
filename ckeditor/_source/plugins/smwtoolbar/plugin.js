@@ -1089,52 +1089,25 @@ if (SMW_HALO_VERSION.InArray(window.parent.wgCKeditorUseBuildin4Extensions)) {
     };
 
     /**
-   * fetches the current selected text from the gEditInterface (i.e. the FCK editor
-   * area) and creates a context menu for annotating the selected text or modifying
-   * the selected annotation.
-   *
-   * @param Event event
-   */
-    CheckSelectedAndCallPopup = function(event) {
-      if (!event) {
-        var frame = GetWindowOfEditor();
-        event = frame.event;
-      }
-	  if (!event) {
-	  	event = gElastMouseUpEvent;
-	  }
-	  gElastMouseUpEvent = event;
-      // handle here if the popup box for a selected annotation must be shown
-      var selection = gEditInterface.getSelectionAsArray();
-      var msg = gEditInterface.getErrMsgSelection();
-      if (!(selection && selection.length) && msg) {
-        var pos = CalculateClickPosition(event);        
-        msg = msg.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        window.parent.smwhgAnnotationHints.showMessageAndWikiText(
-          msg, '', pos[0], pos[1]);
-        return;
-      }
-      // something is selected, this will be a new annotation,
-      // offer both category and property toolbox
-      if (selection && selection.length === 1 && selection[0]) {
-        ShowNewToolbar(event, selection[0]);
-        return;
-      }
-      // an existing annotation will be edited
-      if (selection && selection.length > 1) {
-        if (selection[1] == 102) { // Property
-          var show = selection[0];
-          var val = show;
-          if (selection.length == 4)  // an explizit property value is set, then
-            val = selection[3];     // it's different from the selected (show)
-          ShowRelToolbar(event, selection[2], val, show);
-        }
-        else if (selection[1] == 14) { // Category
-          ShowCatToolbar(event, selection[0], true);
-        }
-      }
-    };
-	
+	 * Invokes the tagging floatbox with the current selection for adding a 
+	 * property annotation.
+	 * 
+	 * @param editor
+	 * 		The CKeditor object
+	 */
+	AddPropertyAnnotation = function (editor) {
+		if (!gEditInterface) {
+			plugin.createEditInterface(editor);
+		}
+        var selection = gEditInterface.getSelectionAsArray();
+        if (selection && selection.length >= 1) {
+            var show = selection[0];
+            var val = show;
+			ShowRelToolbar(plugin.mLastMoveEvent, '', val, show);
+		}
+		
+	}
+
 	/**
 	 * Invokes the tagging floatbox for a property annotation.
 	 * 
@@ -1171,6 +1144,24 @@ if (SMW_HALO_VERSION.InArray(window.parent.wgCKeditorUseBuildin4Extensions)) {
 		
 	}
 	
+	/**
+	 * Invokes the tagging floatbox with the current selection for adding a 
+	 * category annotation.
+	 * 
+	 * @param editor
+	 * 		The CKeditor object
+	 */
+	AddCategoryAnnotation = function (editor) {
+		if (!gEditInterface) {
+			plugin.createEditInterface(editor);
+		}
+        var selection = gEditInterface.getSelectionAsArray();
+        if (selection && selection.length >= 1) {
+			ShowCatToolbar(plugin.mLastMoveEvent,  selection[0], false);
+		}
+		
+	}
+
 	/**
 	 * Invokes the tagging floatbox for a category annotation.
 	 * 
@@ -1240,19 +1231,13 @@ if (SMW_HALO_VERSION.InArray(window.parent.wgCKeditorUseBuildin4Extensions)) {
             var iframe = frame;
             var iframeDocument = iframe.document || iframe.contentDocument;
             iframeDocument.onkeyup = this.EditorareaChanges.bind(this);
-            iframeDocument.onmouseup = CheckSelectedAndCallPopup;
-            iframeDocument.onmousedown = HideContextPopup;
           } else {
             window.parent.Event.observe(frame, 'keyup', this.EditorareaChanges.bind(this));
-            window.parent.Event.observe(frame, 'mouseup', CheckSelectedAndCallPopup);
-            window.parent.Event.observe(frame, 'mousedown', HideContextPopup);
           }
         //            window.parent.obContributor.activateTextArea(frame);
         } else {
           var Textarea = CKEditorTextArea(editor);
           window.parent.Event.observe(Textarea, 'keyup', this.EditorareaChanges.bind(this));
-          window.parent.Event.observe(Textarea, 'mouseup', CheckSelectedAndCallPopup);
-          window.parent.Event.observe(Textarea, 'mousedown', HideContextPopup);
           window.parent.obContributor.activateTextArea(Textarea);
         }
       },
@@ -1268,14 +1253,10 @@ if (SMW_HALO_VERSION.InArray(window.parent.wgCKeditorUseBuildin4Extensions)) {
             iframeDocument.onmousemove = null;
           } else {
             window.parent.Event.stopObserving(window.frames[0], 'keyup', this.EditorareaChanges);
-            window.parent.Event.stopObserving(window.frames[0], 'mouseup', CheckSelectedAndCallPopup);
-          //            window.parent.Event.stopObserving(window.frames[0], 'mousedown', HideContextPopup);
           }
         } else {
           var Textarea = CKEditorTextArea(editor);
           window.parent.Event.stopObserving(Textarea, 'keyup', this.EditorareaChanges);
-          window.parent.Event.stopObserving(Textarea, 'mouseup', CheckSelectedAndCallPopup);
-        //          window.parent.Event.stopObserving(Textarea, 'mousedown', HideContextPopup);
         }
       },
 	  RegisterMouseTracker: function (editor) {
@@ -1382,6 +1363,37 @@ if (SMW_HALO_VERSION.InArray(window.parent.wgCKeditorUseBuildin4Extensions)) {
 				EditCategoryAnnotation(editor, editCategoryCommmand.element);
             }
           };
+          var addPropertyCommmand =
+          {
+        		  preserveState : false,
+        		  editorFocus : true,
+        		  canUndo : true,
+        		  modes : {
+        			  wysiwyg : 1,
+        			  source : 1
+        		  },
+        		  
+        		  exec: function( editor )
+        		  {
+        			  AddPropertyAnnotation(editor);
+        		  }
+          };
+          
+          var addCategoryCommmand =
+          {
+        		  preserveState : false,
+        		  editorFocus : true,
+        		  canUndo : true,
+        		  modes : {
+        			  wysiwyg : 1,
+        			  source : 1
+        		  },
+        		  
+        		  exec: function( editor )
+        		  {
+        			  AddCategoryAnnotation(editor);
+        		  }
+          };
           var removePropertyCommmand =
           {
             preserveState : false,
@@ -1395,6 +1407,7 @@ if (SMW_HALO_VERSION.InArray(window.parent.wgCKeditorUseBuildin4Extensions)) {
             exec: function( editor )
             {
               removePropertyCommmand.element.remove();
+              plugin.EditorareaChanges();
             }
           };
 			
@@ -1411,6 +1424,7 @@ if (SMW_HALO_VERSION.InArray(window.parent.wgCKeditorUseBuildin4Extensions)) {
             exec: function( editor )
             {
               removeCategoryCommmand.element.remove();
+              plugin.EditorareaChanges();
             }
           };
           editor.addCommand( 'editProperty', editPropertyCommmand);
@@ -1467,8 +1481,9 @@ if (SMW_HALO_VERSION.InArray(window.parent.wgCKeditorUseBuildin4Extensions)) {
 
         }
 		
-        editor.addCommand( 'SMWtoolbar', commandDefinition);
         if ( editor.ui.addButton ) {
+        editor.addCommand( 'SMWtoolbar', commandDefinition);
+        	
           editor.ui.addButton( 'SMWtoolbar',
           {
             label : 'Semantic Toolbar',
@@ -1477,7 +1492,28 @@ if (SMW_HALO_VERSION.InArray(window.parent.wgCKeditorUseBuildin4Extensions)) {
             title: 'Semantic Toolbar'
           });
           editor.getCommand('SMWtoolbar').setState(CKEDITOR.TRISTATE_OFF);
+        
+          editor.addCommand( 'SMWAddProperty', addPropertyCommmand);
+          editor.ui.addButton( 'SMWAddProperty',
+        	{
+        		label : 'Add Property',
+        		command : 'SMWAddProperty',
+        		icon: this.path + 'images/icon_property.gif',
+        		title: 'Add Property'
+        	});
+        	editor.getCommand('SMWAddProperty').setState(CKEDITOR.TRISTATE_OFF);
+        	
+        	editor.addCommand( 'SMWAddCategory', addCategoryCommmand);
+			editor.ui.addButton('SMWAddCategory', {
+				label : 'Add Category',
+				command : 'SMWAddCategory',
+				icon : this.path + 'images/icon_category.gif',
+				title : 'Add Category'
+			});
+			editor.getCommand('SMWAddCategory').setState(CKEDITOR.TRISTATE_OFF);
+        	
         }
+        
         
         // disable toolbar when switching mode
         editor.on( 'beforeCommandExec', function( ev ) {
