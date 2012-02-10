@@ -29,7 +29,8 @@ class TestAddingExternalImages extends SeleniumTestCase_Base
 
   public function testWithExternalImagesDisabled()
   {
-    $this->open("/mediawiki/index.php?title=Mynewtestpage2&action=edit&mode=wysiwyg");
+    $this->login();
+    $this->open($this->wgScriptPath . "/index.php?title=Mynewtestpage2&action=edit&mode=wysiwyg");
     $this->runScript("CKEDITOR.instances.wpTextbox1.setData(\"\")");
     for ($second = 0; ; $second++) {
         if ($second >= 60) $this->fail("Element not present: //a[contains(@class, 'cke_button_image')]/span[1]");

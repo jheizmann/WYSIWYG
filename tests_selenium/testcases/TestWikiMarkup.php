@@ -29,7 +29,8 @@ class TestWikiMarkup extends SeleniumTestCase_Base
 
   public function testMyTestCase()
   {
-    $this->open("/mediawiki/index.php?title=Mynewtestpagss&action=edit&mode=wysiwyg");
+    $this->login();
+    $this->open($this->wgScriptPath . "/index.php?title=Mynewtestpagss&action=edit&mode=wysiwyg");
     $this->runScript("CKEDITOR.instances.wpTextbox1.setData(\"This page is called: {{{PAGENAME}}}<br/><br/>Template Call: 2 < 3<br/>{{template|sdf|param=2|pagea2={{Some Other template}}}} and a nowiki part&lt;nowiki&gt;bla<br/>blub done<br/>&lt;/nowiki&gt;<br/><br/>Tepmplates like this {{TempLateBlub|param1={{{arg_x}}}}} can also use parameters.<br/><br/>Here we have magic words like __SGDGfsar__ and __NOTOC__ and __SOFOR__ that should be<br/>replaced.<br/><br/>We have {{#ask:[[Category:Person]]|format=ol}} in the wiki.\")");
     $this->setSpeed("1000");
     for ($second = 0; ; $second++) {

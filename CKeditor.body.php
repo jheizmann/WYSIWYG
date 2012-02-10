@@ -471,14 +471,14 @@ class CKeditor_MediaWiki {
             $this->showFCKEditor |= RTE_VISIBLE;
         }
 
-		$wgFCKWikiTextBeforeParse = $form->textbox1;
-		if( $this->showFCKEditor & RTE_VISIBLE ){
-			$options = new CKeditorParserOptions();
-			$options->setTidy( true );
-			$parser = new CKeditorParser();
-			$parser->setOutputType( OT_HTML );
-			$form->textbox1 = str_replace( '<!-- Tidy found serious XHTML errors -->', '', $parser->parse( $form->textbox1, $wgTitle, $options )->getText() );
-		}
+//		$wgFCKWikiTextBeforeParse = $form->textbox1;
+//		if( $this->showFCKEditor & RTE_VISIBLE ){
+//			$options = new CKeditorParserOptions();
+//			$options->setTidy( true );
+//			$parser = new CKeditorParser();
+//			$parser->setOutputType( OT_HTML );
+//			$form->textbox1 = str_replace( '<!-- Tidy found serious XHTML errors -->', '', $parser->parse( $form->textbox1, $wgTitle, $options )->getText() );
+//		}
 
 		$printsheet = htmlspecialchars( "$wgStylePath/common/wikiprintable.css?$wgStyleVersion" );
 

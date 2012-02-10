@@ -30,19 +30,20 @@ class TestQueryInterfaceInWysiwyg extends SeleniumTestCase_Base
 
   public function testMyTestCase()
   {
-    $this->open("/mediawiki/index.php?title=France&action=edit");
+    $this->login();
+    $this->open($this->wgScriptPath . "/index.php?title=France&action=edit");
     $this->type("wpTextbox1", "[[HasCitizen::33333333]]\n[[HasCapital::Paris]]\n[[Category:State]]");
     $this->click("wpSave");
     $this->waitForPageToLoad("30000");
-    $this->open("/mediawiki/index.php?title=Portugal&action=edit");
+    $this->open($this->wgScriptPath . "/index.php?title=Portugal&action=edit");
     $this->type("wpTextbox1", "[[HasCitizen::44444444444]]\n[[HasCapital::Lissabon]]\n[[Category:State]]");
     $this->click("wpSave");
     $this->waitForPageToLoad("30000");
-    $this->open("/mediawiki/index.php?title=Germany&action=edit");
+    $this->open($this->wgScriptPath . "/index.php?title=Germany&action=edit");
     $this->type("wpTextbox1", "[[HasCitizen::55555555]]\n[[HasCapital::Berlin]]\n[[Category:State]]");
     $this->click("wpSave");
     $this->waitForPageToLoad("30000");
-    $this->open("/mediawiki/index.php?title=WYSIWYGTest&action=edit&mode=wysiwyg");
+    $this->open($this->wgScriptPath . "/index.php?title=WYSIWYGTest&action=edit&mode=wysiwyg");
     for ($second = 0; ; $second++) {
         if ($second >= 60) $this->fail("timeout");
         try {

@@ -27,7 +27,8 @@ class TestHtmlToWikitextConverion3 extends SeleniumTestCase_Base
 {
   public function testHtmlToWikiConversion()
   {
-    $this->open("/mediawiki/index.php?title=Testhtmltowiki&action=edit&mode=wysiwyg");
+    $this->login();
+    $this->open($this->wgScriptPath . "/index.php?title=Testhtmltowiki&action=edit&mode=wysiwyg");
     $this->runScript("CKEDITOR.instances.wpTextbox1.setData('');");
     $this->setSpeed("2000");
     $this->runScript("CKEDITOR.instances.wpTextbox1.insertHtml('<span sort=\"Appropriate\" class=\"fck_mw_category\" _fcknotitle=\"true\">Appropriate</span>')");

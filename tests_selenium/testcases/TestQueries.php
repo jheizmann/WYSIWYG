@@ -30,8 +30,9 @@ class TestQueries extends SeleniumTestCase_Base
   public function testQueryWikiToHtmlTransformation()
   {
     $askWikitext = '{{#ask:[[Category:Wiki - kopie 2/Component]]|format = table}}';      
-      
-    $this->open("/mw156/index.php?title=Testquery1&action=edit");
+
+    $this->login();
+    $this->open($this->wgScriptPath . "/index.php?title=Testquery1&action=edit");
     $this->setSpeed("3000");
     if($this->isElementPresent("//a[@id='toggle_wpTextbox1'][text()='Show WikiTextEditor']")){
         $this->click("//a[@id='toggle_wpTextbox1'][text()='Show WikiTextEditor']");
